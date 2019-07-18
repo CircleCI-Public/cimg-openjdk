@@ -5,8 +5,8 @@ FROM cimg/base:edge
 LABEL maintainer="CircleCI Community & Partner Engineering Team <community-partner@circleci.com>"
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV JAVA_VERSION 11.0.0
-ENV URL https://download.java.net/java/ga/jdk11/openjdk-11_linux-x64_bin.tar.gz
+ENV JAVA_VERSION 11.0.1
+ENV URL https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz
 
 RUN curl -o java.tar.gz "${URL}" && \
 	tar -xzf java.tar.gz -C /usr/local && \
