@@ -115,7 +115,6 @@ jobs:
             cd <<pipeline.parameters.lang>><</parameters.variant>>
 
             for i in $(seq 1 "${#urls}"); do
-            do
               version=${versions[i]}
               url_snippet=${urls[i]}
 
