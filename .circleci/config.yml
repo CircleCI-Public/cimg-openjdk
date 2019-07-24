@@ -113,7 +113,7 @@ jobs:
             <<^parameters.variant>>mkdir -p <<pipeline.parameters.lang>>
             cd <<pipeline.parameters.lang>><</parameters.variant>>
 
-            for (( i=0; i<="${#versions} - 1"; i++)); do
+            for (( i=0; i<="${#versions[@]} - 1"; i++ )); do
               version=${versions[i]}
               url_snippet=${urls[i]}
 
