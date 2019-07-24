@@ -55,7 +55,7 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
   # e.g., for 9.0.4+11, but while ignoring edge cases, e.g., 8u222-b10
   && if echo "$JAVA_VERSION" | grep '\-[0-9]'; then \
     CORRECTED_JAVA_VERSION_STRING=$(echo "$JAVA_VERSION" | sed -E 's|-|+'); \
-    else; \
+    else \
       CORRECTED_JAVA_VERSION_STRING="$JAVA_VERSION"; \
     fi; \
   && mv "jdk-$CORRECTED_JAVA_VERSION_STRING"/* "$JAVA_HOME" \
