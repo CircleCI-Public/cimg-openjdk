@@ -46,6 +46,29 @@ dockerfiles: &dockerfiles
 node-dockerfiles: &node-dockerfiles
   $(find <<pipeline.parameters.lang>>-node/*/Dockerfile | tr '\n' ',')
 
+publish-tags: &publish-tags
+  latest<<#pipeline.parameters.monthly>>,<<pipeline.parameters.version>>-stable<</pipeline.parameters.monthly>>
+
+node-publish-tags: &node-publish-tags
+  <<#pipeline.parameters.monthly>><<pipeline.parameters.version>>-stable-node<</pipeline.parameters.monthly>>
+
+lint-ignore-rules: &lint-ignore-rules
+  DL3003,DL3008
+
+dev-filters: &dev-filters
+  branches:
+    ignore: master
+
+master-filters: &master-filters
+  branches:
+    only: master
+
+monthly-tag-jobs-filters: &monthly-tag-jobs-filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /monthly.*/
+
 jobs:
   trigger-pipeline-builds:
     executor: cimg/base
@@ -148,29 +171,6 @@ jobs:
 
       - store_artifacts:
           path: ~/project
-
-dev-filters: &dev-filters
-  branches:
-    ignore: master
-
-master-filters: &master-filters
-  branches:
-    only: master
-
-monthly-tag-jobs-filters: &monthly-tag-jobs-filters
-  branches:
-    ignore: /.*/
-  tags:
-    only: /monthly.*/
-
-publish-tags: &publish-tags
-  latest<<#pipeline.parameters.monthly>>,<<pipeline.parameters.version>>-stable<</pipeline.parameters.monthly>>
-
-node-publish-tags: &node-publish-tags
-  <<#pipeline.parameters.monthly>><<pipeline.parameters.version>>-stable-node<</pipeline.parameters.monthly>>
-
-lint-ignore-rules: &lint-ignore-rules
-  DL3008
 
 workflows:
   monthly-cron-trigger:
