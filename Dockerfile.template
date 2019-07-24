@@ -54,10 +54,11 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
   # now we need to change it back so we have correct file/dir names:
   # e.g., for 9.0.4+11, but while ignoring edge cases, e.g., 8u222-b10
   && if echo "$JAVA_VERSION" | grep '\-[0-9]'; then \
-    CORRECTED_JAVA_VERSION_STRING=$(echo "$JAVA_VERSION" | sed -E 's|-|+'); \
+    CORRECTED_JAVA_VERSION_STRING=$(echo "$JAVA_VERSION" | \
+      sed -E 's|-|+'); \
     else \
       CORRECTED_JAVA_VERSION_STRING="$JAVA_VERSION"; \
-    fi; \
+    fi \
   && mv "jdk-$CORRECTED_JAVA_VERSION_STRING"/* "$JAVA_HOME" \
   && rm -f "$FILENAME" && rm -rf "jdk-$CORRECTED_JAVA_VERSION_STRING" \
   && ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/java" /usr/bin/java \
