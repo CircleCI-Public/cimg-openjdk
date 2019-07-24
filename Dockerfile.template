@@ -49,13 +49,12 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
   && rm -f "$FILENAME.sha256.txt" \
   # install OpenJDK
   && tar -xzf "$FILENAME" -C /usr/local \
-  && rm -f "$FILENAME" \
-  && ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/java" /usr/bin/java \
-	&& ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/javac" /usr/bin/javac \
-	&& ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/javaws" /usr/bin/javaws \
-	&& command -v java \
-	&& java --version
-  # | grep "$JAVA_FULL_VERSION"
+  && rm -f "$FILENAME"
+ #  && ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/java" /usr/bin/java \
+	# && ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/javac" /usr/bin/javac \
+	# && ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/javaws" /usr/bin/javaws \
+	# && command -v java \
+	# && java --version | grep "$JAVA_FULL_VERSION"
 
 # # Install Maven
 # RUN \

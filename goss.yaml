@@ -1,3 +1,7 @@
-command:
-  java --version:
-    exit-status: 0
+# command:
+#   java --version:
+#     exit-status: 0
+
+user:
+  root:
+    exists: true
