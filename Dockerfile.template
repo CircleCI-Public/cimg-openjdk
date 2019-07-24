@@ -52,7 +52,7 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
   && tar -xzf "$FILENAME" -C extract --strip-components 1 --no-same-owner \
   && rm -f "$FILENAME" \
   && mkdir -p "$JAVA_HOME" \
-  && mv extract/*/* "$JAVA_HOME" && rm -rf extract \
+  && cd extract/* && cp -a . "$JAVA_HOME"/ && cd ../.. && rm -rf extract \
   && ln -s "$JAVA_HOME/bin/java" /usr/bin/java \
 	&& ln -s "$JAVA_HOME/bin/javac" /usr/bin/javac \
 	&& ln -s "$JAVA_HOME/bin/javaws" /usr/bin/javaws \
