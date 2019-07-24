@@ -42,6 +42,8 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
   && curl -O --show-error --location --fail --retry 3 "$JAVA_DOWNLOAD_URL.sha256.txt" \
   # create var representing filename in shasum.txt
   && FILENAME=$(echo "$JAVA_URL_SNIPPET" | sed -E 's|.*/||') \
+  # fix shasum file; irregular filename scheme with, e.g., OpenJDK 9
+  && perl -i -pe 's|  .*/|  |' "$FILENAME.sha256.txt" \
   # verify OpenJDK tar via shasum256
   && grep "$FILENAME" "$FILENAME.sha256.txt" | sha256sum -c - \
   && rm -f "$FILENAME.sha256.txt" \
@@ -52,7 +54,8 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
 	&& ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/javac" /usr/bin/javac \
 	&& ln -s "/usr/local/openjdk-$JAVA_MAJOR_VERSION/bin/javaws" /usr/bin/javaws \
 	&& command -v java \
-	&& java --version | grep "$JAVA_FULL_VERSION"
+	&& java --version
+  # | grep "$JAVA_FULL_VERSION"
 
 # # Install Maven
 # RUN \
