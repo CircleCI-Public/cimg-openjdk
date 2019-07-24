@@ -5,7 +5,8 @@ parent=base
 variants=(node)
 
 # add new version numbers here
-versions=(8u222 9.0.4+11 10.0.2+13.1 11.0.4+11 12.0.2+10)
+# note: convert any `+` chars to `-` chars, as Docker tags cannot contain `+`
+versions=(8u222-b10 9.0.4-11 10.0.2-13.1 11.0.4-11 12.0.2-10)
 
 # add corresponding URL snippets here, in the same order
 # get URLs here: https://adoptopenjdk.net/archive.html
