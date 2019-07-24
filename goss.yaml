@@ -1,0 +1,3 @@
+command:
+  java --version:
+    exit-status: 0
