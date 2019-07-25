@@ -73,13 +73,8 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
   # the more basic `-version` 'version', which does not produce `grep`-able output
 	&& java --version | grep "$CORRECTED_JAVA_VERSION_STRING" || java -version
 
-# # Install Maven
-# RUN \
-
-# # Install Ant
-# RUN \
-# # Install Gradle
-# RUN \
+# Install Maven, Ant, Gradle, sbt
+# e.g., https://github.com/CircleCI-Public/circleci-dockerfiles/blob/master/openjdk/images/8u222-jdk-stretch/Dockerfile#L100-L112
 
 # Set default shell for users
 SHELL ["/bin/bash", "-c"]

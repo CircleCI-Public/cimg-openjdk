@@ -53,7 +53,7 @@ node-publish-tags: &node-publish-tags
   <<#pipeline.parameters.monthly>><<pipeline.parameters.version>>-stable-node<</pipeline.parameters.monthly>>
 
 lint-ignore-rules: &lint-ignore-rules
-  DL3003,DL3008
+  DL3003,DL3008,SC2015
 
 dev-filters: &dev-filters
   branches:
