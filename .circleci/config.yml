@@ -67,7 +67,7 @@ monthly-tag-jobs-filters: &monthly-tag-jobs-filters
   branches:
     ignore: /.*/
   tags:
-    only: /monthly.*/
+    only: /.*monthly.*/
 
 jobs:
   trigger-pipeline-builds:
