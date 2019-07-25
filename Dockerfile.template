@@ -68,7 +68,10 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
 	&& command -v java \
   && command -v javac \
   && javac -version \
-	&& java --version | grep "$CORRECTED_JAVA_VERSION_STRING"
+  # java --version, the only 'version' of this flag which has `grep`-able output,
+  # is not available in all versions of java. if it isn't, just make sure we can run
+  # the more basic `-version` 'version', which does not produce `grep`-able output
+	&& java --version | grep "$CORRECTED_JAVA_VERSION_STRING" || java -version
 
 # # Install Maven
 # RUN \
