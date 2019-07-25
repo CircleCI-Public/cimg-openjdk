@@ -35,7 +35,7 @@ Stub text.
 Working on CircleCI Docker images.
 
 ### Adding new OpenJDK versions
-To add a new version of OpenJDK, add it to the [`versions` array in the `manifests` file](https://github.com/CircleCI-Public/cimg-ruby/blob/master/manifest#L8), as well as to the [`version` pipeline parameter `enum` at the top of the `config.yml` file](https://github.com/CircleCI-Public/cimg-ruby/blob/master/.circleci/config.yml#L41). Then add its [unique AdoptOpenJDK URL snippet](https://github.com/CircleCI-Public/cimg-ruby/blob/master/manifest#L10-L12) to the [`urls` array in the `manifests` file](https://github.com/CircleCI-Public/cimg-ruby/blob/master/manifest#L13).
+To add a new version of OpenJDK, add it to the [`versions` array in the `manifests` file](https://github.com/CircleCI-Public/cimg-ruby/blob/master/manifest#L8). Then add its [unique AdoptOpenJDK URL snippet](https://github.com/CircleCI-Public/cimg-ruby/blob/master/manifest#L10-L12) to the [`urls` array in the `manifests` file](https://github.com/CircleCI-Public/cimg-ruby/blob/master/manifest#L13).
 
 ### Commits to non-master branches
 Upon successful commits to non-master branches of this repository, OpenJDK versions of this image and its Node variant will be pushed to `ccitest/openjdk` for any requisite post-deployment testing. Tags there will represent the branch and commit hash that triggered them. For example, a successful commit to a branch of this repository called `dev` would result in the creation of the following image/tag: `ccitest/openjdk:<openjdk-version>-dev-${CIRCLE_SHA1:0:7}"`, where `${CIRCLE_SHA1:0:7}"` represents the first six characters of that particular commit hash.
