@@ -68,7 +68,7 @@ RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
 	&& command -v java \
   && command -v javac \
   && javac -version \
-	&& java -version | grep "$CORRECTED_JAVA_VERSION_STRING"
+	&& java --version | grep "$CORRECTED_JAVA_VERSION_STRING"
 
 # # Install Maven
 # RUN \
