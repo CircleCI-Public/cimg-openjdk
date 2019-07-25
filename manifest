@@ -3,3 +3,12 @@
 repository=openjdk
 parent=base
 variants=(node)
+
+# add new version numbers here
+# note: convert any `+` chars to `-` chars here, as Docker tags cannot contain `+`
+versions=(8u222-b10 9.0.4-11 10.0.2-13.1 11.0.4-11 12.0.2-10)
+
+# add corresponding URL snippets here, in the same order
+# get URLs here: https://adoptopenjdk.net/archive.html
+# include everything after `https://github.com/AdoptOpenJDK/openjdk<version>-binaries/releases/download/`
+urls=(jdk8u222-b10/OpenJDK8U-jdk_x64_linux_hotspot_8u222b10.tar.gz jdk-9.0.4%2B11/OpenJDK9U-jdk_x64_linux_hotspot_9.0.4_11.tar.gz jdk-10.0.2%2B13.1/OpenJDK10U-jdk_x64_linux_hotspot_10.0.2_13.tar.gz jdk-11.0.4%2B11/OpenJDK11U-jdk_x64_linux_hotspot_11.0.4_11.tar.gz jdk-12.0.2%2B10/OpenJDK12U-jdk_x64_linux_hotspot_12.0.2_10.tar.gz)

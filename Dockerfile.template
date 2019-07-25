@@ -1,20 +1,80 @@
 # vim:set ft=dockerfile:
+#
+# `FROM` value will be:
+#
+# cimg/base:stable, cimg/base:stable-node for monthly releases
+# cimg/base:edge, cimg/base:edge-node for commits to master or any other branch
 
-FROM cimg/%%PARENT%%:edge
+FROM %%BASE%%
 
-LABEL maintainer="CircleCI Community & Partner Engineering Team <community-partner@circleci.com>"
+LABEL maintainer="CircleCI Community/Partner Engineering <community-partner@circleci.com>"
 
+# Set default shell for building image
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
+
+# set up env vars
 ENV DEBIAN_FRONTEND noninteractive
-ENV JAVA_VERSION %%MAIN_VERSION%%
-ENV URL %%MAIN_SHA%%
 
-RUN curl -o java.tar.gz "${URL}" && \
-	tar -xzf java.tar.gz -C /usr/local && \
-	rm java.tar.gz && \
-	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
-	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
-	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws
-	
-ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
-	
-WORKDIR /root/project
+ENV JAVA_VERSION=%%VERSION%% \
+	JAVA_MAJOR_VERSION=%%MAJOR%%
+
+ENV	JAVA_HOME="/usr/local/openjdk-$JAVA_MAJOR_VERSION" \
+	PATH=$JAVA_HOME/bin:$PATH
+
+ENV JAVA_BASE_URL="https://github.com/AdoptOpenJDK/openjdk$JAVA_MAJOR_VERSION-binaries/releases/download" \
+	JAVA_URL_SNIPPET=%%SNIPPET%%
+
+# install openjfx, other utils
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    openjfx \
+    xz-utils \
+    p11-kit \
+    fontconfig \
+    libfreetype6 \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# download/install OpenJDK
+RUN JAVA_DOWNLOAD_URL="$JAVA_BASE_URL/$JAVA_URL_SNIPPET" \
+  && curl -O --show-error --location --fail --retry 3 "$JAVA_DOWNLOAD_URL" \
+  # download shasum
+  && curl -O --show-error --location --fail --retry 3 "$JAVA_DOWNLOAD_URL.sha256.txt" \
+  # create var representing filename in shasum.txt
+  && FILENAME=$(echo "$JAVA_URL_SNIPPET" | sed -E 's|.*/||') \
+  # fix shasum file; irregular filename scheme with, e.g., OpenJDK 9
+  && perl -i -pe 's|  .*/|  |' "$FILENAME.sha256.txt" \
+  # verify OpenJDK tar via shasum256
+  && grep "$FILENAME" "$FILENAME.sha256.txt" | sha256sum -c - \
+  && rm -f "$FILENAME.sha256.txt" \
+  # install OpenJDK
+  && mkdir extract \
+  && tar -xzf "$FILENAME" -C extract \
+  && rm -f "$FILENAME" \
+  && mkdir -p "$JAVA_HOME" \
+  && cd extract/*/ && cp -a . "$JAVA_HOME"/ && cd ../.. && rm -rf extract \
+  && ln -s "$JAVA_HOME/bin/java" /usr/bin/java \
+	&& ln -s "$JAVA_HOME/bin/javac" /usr/bin/javac \
+	&& ln -s "$JAVA_HOME/bin/javaws" /usr/bin/javaws \
+  # we have to change + to - in manifest & config.yml
+  # now we need to change it back so we have correct file/dir names:
+  # e.g., for 9.0.4+11, but while ignoring edge cases, e.g., 8u222-b10
+  && if echo "$JAVA_VERSION" | grep '\-[0-9]'; then \
+    CORRECTED_JAVA_VERSION_STRING=$(echo "$JAVA_VERSION" | \
+      sed -E 's|-|+|'); \
+    else \
+      CORRECTED_JAVA_VERSION_STRING="$JAVA_VERSION"; \
+    fi \
+	&& command -v java \
+  && command -v javac \
+  && javac -version \
+  # java --version, the only 'version' of this flag which has `grep`-able output,
+  # is not available in all versions of java. if it isn't, just make sure we can run
+  # the more basic `-version` 'version', which does not produce `grep`-able output
+	&& java --version | grep "$CORRECTED_JAVA_VERSION_STRING" || java -version
+
+# Install Maven, Ant, Gradle, sbt
+# e.g., https://github.com/CircleCI-Public/circleci-dockerfiles/blob/master/openjdk/images/8u222-jdk-stretch/Dockerfile#L100-L112
+
+# Set default shell for users
+SHELL ["/bin/bash", "-c"]
