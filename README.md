@@ -51,14 +51,15 @@ Images can also be built and tested locally.
 To generate Dockerfiles, use the `generate-dockerfiles.sh` script:
 
 ```shell
-bash generate-dockerfiles.sh -- cimg/base:edge # create openjdk, openjdk-node Dockerfiles
-
+# use `-v` or `--variant` to pass either `openjdk` or `node`
 bash generate-dockerfiles.sh --variant openjdk -- cimg/base:edge # create openjdk Dockerfiles only
+bash generate-dockerfiles.sh -v node -- cimg/base:edge-node # create openjdk-node Dockerfiles only
 
-bash generate-dockerfiles.sh -v node -- cimg/base:edge # create openjdk-node Dockerfiles only
+# without flags, the script will generate both openjdk and openjdk-node Dockerfiles
+bash generate-dockerfiles.sh -- cimg/base:edge
 
-# use cimg/base:stable, cimg/base:stable-node for monthly releases
-# use cimg/base:edge, cimg/base:edge-node when working on master or any other branch
+# pass cimg/base:stable or cimg/base:stable-node to the script for monthly releases
+# pass cimg/base:edge or cimg/base:edge-node when working on master or any other branch
 ```
 
 ### Linting Dockerfiles
