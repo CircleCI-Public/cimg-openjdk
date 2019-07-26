@@ -3,9 +3,7 @@
 # example command usage:
 
 # bash generate-dockerfiles.sh -- cimg/base:edge (create openjdk, openjdk-node Dockerfiles)
-
 # bash generate-dockerfiles.sh --variant openjdk -- cimg/base:edge (create openjdk Dockerfiles only)
-
 # bash generate-dockerfiles.sh -v node -- cimg/base:edge (create openjdk-node Dockerfiles only)
 
 die() {
