@@ -2,8 +2,7 @@ version: 2.1
 
 orbs:
   bt: circleci/build-tools@2.6.3
-  cimg: cci-dev/cimg@0.0.24
-  docker: circleci/docker@0.5.13
+  cimg: cci-dev/cimg@0.0.25
 
 parameters:
   lang:
@@ -40,20 +39,11 @@ parameters:
     type: string
     default: ""
 
-dockerfiles: &dockerfiles
-  $(find <<pipeline.parameters.lang>>/*/Dockerfile | tr '\n' ',')
-
-node-dockerfiles: &node-dockerfiles
-  $(find <<pipeline.parameters.lang>>-node/*/Dockerfile | tr '\n' ',')
-
 publish-tags: &publish-tags
   latest<<#pipeline.parameters.monthly>>,<<pipeline.parameters.version>>-stable<</pipeline.parameters.monthly>>
 
 node-publish-tags: &node-publish-tags
   <<#pipeline.parameters.monthly>><<pipeline.parameters.version>>-stable-node<</pipeline.parameters.monthly>>
-
-lint-ignore-rules: &lint-ignore-rules
-  DL3003,DL3008,SC2015
 
 dev-filters: &dev-filters
   branches:
@@ -175,24 +165,14 @@ workflows:
           variant: node
           filters: *monthly-tag-jobs-filters
 
-      - docker/hadolint:
+      - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-stable
-          checkout: false
-          attach-workspace: true
-          workspace-root: ~/
-          ignore-rules: *lint-ignore-rules
-          dockerfiles: *dockerfiles
           filters: *monthly-tag-jobs-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-stable]
 
-      - docker/hadolint:
+      - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-stable-node
           context: image-publishing
-          checkout: false
-          attach-workspace: true
-          workspace-root: ~/
-          ignore-rules: *lint-ignore-rules
-          dockerfiles: *node-dockerfiles
           filters: *monthly-tag-jobs-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-stable-node]
 
@@ -224,13 +204,8 @@ workflows:
           step-name: Prepare ccitest/<<pipeline.parameters.lang>> Dockerfiles from template
           filters: *dev-filters
 
-      - docker/hadolint:
+      - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-ccitest
-          checkout: false
-          attach-workspace: true
-          workspace-root: ~/
-          ignore-rules: *lint-ignore-rules
-          dockerfiles: *dockerfiles
           filters: *dev-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-ccitest]
 
@@ -250,14 +225,9 @@ workflows:
           variant: node
           filters: *dev-filters
 
-      - docker/hadolint:
+      - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-ccitest-node
           context: image-publishing
-          checkout: false
-          attach-workspace: true
-          workspace-root: ~/
-          ignore-rules: *lint-ignore-rules
-          dockerfiles: *node-dockerfiles
           filters: *dev-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-ccitest-node]
 
@@ -277,13 +247,8 @@ workflows:
           step-name: Prepare cimg/<<pipeline.parameters.lang>>:edge Dockerfiles from template
           filters: *master-filters
 
-      - docker/hadolint:
+      - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-edge
-          checkout: false
-          attach-workspace: true
-          workspace-root: ~/
-          ignore-rules: *lint-ignore-rules
-          dockerfiles: *dockerfiles
           filters: *master-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-edge]
 
@@ -305,14 +270,9 @@ workflows:
           variant: node
           filters: *master-filters
 
-      - docker/hadolint:
+      - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-edge-node
           context: image-publishing
-          checkout: false
-          attach-workspace: true
-          workspace-root: ~/
-          ignore-rules: *lint-ignore-rules
-          dockerfiles: *node-dockerfiles
           filters: *master-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-edge-node]
 

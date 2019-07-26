@@ -30,7 +30,7 @@ Mutable tag that represents the latest non-Node-variant, vanilla `cimg/openjdk` 
 
 Stub text.
 
-## Development
+## Development with CI
 
 Working on CircleCI Docker images.
 
@@ -43,7 +43,8 @@ Upon successful commits to non-master branches of this repository, OpenJDK versi
 ### Patching bugs and vulnerabilities
 Monthly release tags can be manually re-published to patch vulnerabilities or severe bugs via a pushing a `git` tag that contains the string `monthly`. This tag will trigger a workflow that will rebuild all current `<openjdk-version>-<year>.<month>` and `<openjdk-version>-<year>.<month>-node` tags, as well as the `<openjdk-version>-stable`, `<openjdk-version>-stable-node`, and `latest` alias tags.
 
-### Local development
+## Local development
+
 Images can also be built and tested locally. To generate Dockerfiles, use the `generate-dockerfiles.sh` script:
 
 ```shell

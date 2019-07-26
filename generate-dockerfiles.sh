@@ -24,7 +24,7 @@ while :; do
 				case $2 in
 					openjdk|node)
 						VARIANT="$2"
-						echo "Generating $2 Dockerfiles"
+						echo "Generating $2 Dockerfiles..."
 						;;
 					?*)
 						die "ERROR: unknown option for \`--variant\`: \`$2\`
@@ -66,9 +66,6 @@ replace_dockerfiles () {
 	  version=${versions[i]}
 	  url_snippet=${urls[i]}
 
-	  echo "$version"
-	  echo "$url_snippet"
-
 	  mkdir -p "$1/$version"
 	  cp Dockerfile.template "$1/$version/Dockerfile"
 
@@ -86,6 +83,7 @@ replace_dockerfiles () {
 
 	  # replace url snippet
 	  perl -i -pe 's!%%SNIPPET%%!'"$url_snippet"'!g' "$1/$version/Dockerfile"
+	  echo "$1/$version/Dockerfile" complete!
 	done
 }
 
