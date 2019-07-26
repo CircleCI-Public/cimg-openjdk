@@ -119,47 +119,23 @@ jobs:
         type: string
       variant:
         type: enum
-        enum: ["", node]
-        default: ""
+        enum: [<<pipeline.parameters.lang>>, node]
+        default: <<pipeline.parameters.lang>>
 
     steps:
       - checkout
       - run:
           name: <<parameters.step-name>>
           command: |
-            BASE=<<parameters.base-org-image-tag>>
-
-            source ./manifest
-
-            <<#parameters.variant>>mkdir -p <<pipeline.parameters.lang>>-<<parameters.variant>>
-            cd <<pipeline.parameters.lang>>-<<parameters.variant>><</parameters.variant>>
-            <<^parameters.variant>>mkdir -p <<pipeline.parameters.lang>>
-            cd <<pipeline.parameters.lang>><</parameters.variant>>
-
-            for (( i=0; i<="${#versions[@]} - 1"; i++ )); do
-              version=${versions[i]}
-              url_snippet=${urls[i]}
-
-              echo "$version"
-              echo "$url_snippet"
-
-              mkdir -p "$version"
-
-              # replace base image/tag
-              sed -r -e 's!%%BASE%%!'"$BASE"'!g' \
-                ~/project/Dockerfile.template > "$version/Dockerfile"
-
-              # replace main version
-              perl -i -pe 's!%%VERSION%%!'"$version"'!g' "$version/Dockerfile"
-
-              # replace major version
-              major_version=$(echo "$version" | cut -f1 -d"." | cut -f1 -d"u")
-
-              perl -i -pe 's!%%MAJOR%%!'"$major_version"'!g' "$version/Dockerfile"
-
-              # replace url snippet
-              perl -i -pe 's!%%SNIPPET%%!'"$url_snippet"'!g' "$version/Dockerfile"
-            done
+            if [[ <<parameters.variant>> == node ]]; then
+              bash generate-dockerfiles.sh \
+                -v node -- \
+                <<parameters.base-org-image-tag>>
+            else
+              bash generate-dockerfiles.sh \
+                -v <<pipeline.parameters.lang>> -- \
+                <<parameters.base-org-image-tag>>
+            fi
 
       - save_cache:
           paths: ~/project/<<pipeline.parameters.lang>><<#parameters.variant>>-<<parameters.variant>><</parameters.variant>>

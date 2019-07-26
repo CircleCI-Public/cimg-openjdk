@@ -43,6 +43,20 @@ Upon successful commits to non-master branches of this repository, OpenJDK versi
 ### Patching bugs and vulnerabilities
 Monthly release tags can be manually re-published to patch vulnerabilities or severe bugs via a pushing a `git` tag that contains the string `monthly`. This tag will trigger a workflow that will rebuild all current `<openjdk-version>-<year>.<month>` and `<openjdk-version>-<year>.<month>-node` tags, as well as the `<openjdk-version>-stable`, `<openjdk-version>-stable-node`, and `latest` alias tags.
 
+### Local development
+Images can also be built and tested locally. To generate Dockerfiles, use the `generate-dockerfiles.sh` script:
+
+```shell
+bash generate-dockerfiles.sh -- cimg/base:edge # create openjdk, openjdk-node Dockerfiles
+
+bash generate-dockerfiles.sh --variant openjdk -- cimg/base:edge # create openjdk Dockerfiles only
+
+bash generate-dockerfiles.sh -v node -- cimg/base:edge # create openjdk-node Dockerfiles only
+
+# use cimg/base:stable, cimg/base:stable-node for monthly releases
+# use cimg/base:edge, cimg/base:edge-node when working on master or any other branch
+```
+
 ### Contributing
 We welcome [issues](https://github.com/CircleCI-Public/cimg-openjdk/issues) to and [pull requests](https://github.com/CircleCI-Public/cimg-openjdk/pulls) against this repository!
 
