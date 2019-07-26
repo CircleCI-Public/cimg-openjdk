@@ -45,7 +45,10 @@ Monthly release tags can be manually re-published to patch vulnerabilities or se
 
 ## Local development
 
-Images can also be built and tested locally. To generate Dockerfiles, use the `generate-dockerfiles.sh` script:
+Images can also be built and tested locally.
+
+### Generating Dockerfiles
+To generate Dockerfiles, use the `generate-dockerfiles.sh` script:
 
 ```shell
 bash generate-dockerfiles.sh -- cimg/base:edge # create openjdk, openjdk-node Dockerfiles
@@ -56,6 +59,24 @@ bash generate-dockerfiles.sh -v node -- cimg/base:edge # create openjdk-node Doc
 
 # use cimg/base:stable, cimg/base:stable-node for monthly releases
 # use cimg/base:edge, cimg/base:edge-node when working on master or any other branch
+```
+
+### Linting Dockerfiles
+`cimg` images use `hadolint` to lint Dockerfiles ([installation instructions](https://github.com/hadolint/hadolint#install)).
+
+Once `hadolint` is available locally, use the `shared/lint.sh` script to lint Dockerfiles.
+
+```shell
+# use `-i` or `--ignore-rule` to pass a comma-separated list of Docker/Shellcheck lint rules to ignore
+bash shared/lint.sh -i DL3000,SC1010 -- app/test.Dockerfile,app/deploy.Dockerfile
+
+# use `-t` or `--trusted-registries` to pass a comma-separated list of trusted registries
+bash shared/lint.sh --ignore-rules SC1010 -t docker.io -- "$(find */Dockerfile | tr '\n' ',')"
+bash shared/lint.sh --trusted-registries my.registry:5000 -- Dockerfile
+
+# pass a comma-separated list of Dockerfiles to lint, or an expression that resolves to such a list
+# if a `.hadolint.yaml` file is present in the working directory, the script will use it automatically
+bash shared/lint.sh -- "$(find */*/Dockerfile | tr '\n' ',')"
 ```
 
 ### Contributing
