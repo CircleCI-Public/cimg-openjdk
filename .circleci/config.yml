@@ -127,7 +127,7 @@ jobs:
       - run:
           name: <<parameters.step-name>>
           command: |
-            if [[ <<parameters.variant>> == node ]]; then
+            if [[ "<<parameters.variant>>" == "node" ]]; then
               bash generate-dockerfiles.sh \
                 -v node -- \
                 <<parameters.base-org-image-tag>>
