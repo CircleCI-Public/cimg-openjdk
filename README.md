@@ -64,7 +64,7 @@ bash generate-dockerfiles.sh -v node -- cimg/base:edge # create openjdk-node Doc
 ### Linting Dockerfiles
 `cimg` images use `hadolint` to lint Dockerfiles ([installation instructions](https://github.com/hadolint/hadolint#install)).
 
-Once `hadolint` is available locally, use the `shared/lint.sh` script to lint Dockerfiles.
+Once `hadolint` is available locally, use the `shared/lint.sh` script to lint Dockerfiles:
 
 ```shell
 # use `-i` or `--ignore-rule` to pass a comma-separated list of Docker/Shellcheck lint rules to ignore
