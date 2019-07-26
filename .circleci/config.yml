@@ -206,7 +206,6 @@ workflows:
 
       - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-ccitest
-          dockerfiles: "$(find */*/Dockerfile | tr '\n' ',')"
           filters: *dev-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-ccitest]
 
@@ -228,7 +227,6 @@ workflows:
 
       - cimg/lint:
           name: lint-<<pipeline.parameters.lang>>-ccitest-node
-          dockerfiles: "$(find */*/Dockerfile | tr '\n' ',')"
           context: image-publishing
           filters: *dev-filters
           requires: [prepare-dockerfiles-<<pipeline.parameters.lang>>-ccitest-node]
