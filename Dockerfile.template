@@ -1,10 +1,9 @@
 # vim:set ft=dockerfile:
 
-FROM cimg/%%PARENT%%:edge
+FROM cimg/%%PARENT%%:2019.10
 
 LABEL maintainer="CircleCI Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV DEBIAN_FRONTEND noninteractive
 ENV JAVA_VERSION %%MAIN_VERSION%%
 ENV URL %%MAIN_SHA%%
 
