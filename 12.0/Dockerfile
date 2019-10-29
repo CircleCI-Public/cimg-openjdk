@@ -11,8 +11,8 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-ENV JAVA_VERSION 12.0.0
-ENV URL https://download.java.net/java/GA/jdk12/33/GPL/openjdk-12_linux-x64_bin.tar.gz
+ENV JAVA_VERSION 12.0.1
+ENV URL https://download.java.net/java/GA/jdk12.0.1/69cfe15208a647278a19ef0990eea691/12/GPL/openjdk-12.0.1_linux-x64_bin.tar.gz
 
 RUN curl -o java.tar.gz "${URL}" && \
 	tar -xzf java.tar.gz -C /usr/local && \
