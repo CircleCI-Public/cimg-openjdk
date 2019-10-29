@@ -4,6 +4,13 @@ FROM cimg/%%PARENT%%:2019.10
 
 LABEL maintainer="CircleCI Community & Partner Engineering Team <community-partner@circleci.com>"
 
+# This can be removed with the next monthly base image.
+# Generate & set locale
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
 ENV JAVA_VERSION %%MAIN_VERSION%%
 ENV URL %%MAIN_SHA%%
 
