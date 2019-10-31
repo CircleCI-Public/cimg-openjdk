@@ -19,7 +19,11 @@ RUN curl -o java.tar.gz "${URL}" && \
 	rm java.tar.gz && \
 	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
 	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
-	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws
+	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws && \
+
+	# Simple smoke tests
+	/usr/bin/java --version && \
+	/usr/bin/javac --version 
 	
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 	
