@@ -1,26 +1,18 @@
 # vim:set ft=dockerfile:
 
-FROM cimg/%%PARENT%%:2019.10
+FROM cimg/%%PARENT%%:2020.01
 
-LABEL maintainer="CircleCI Community & Partner Engineering Team <community-partner@circleci.com>"
-
-# This can be removed with the next monthly base image.
-# Generate & set locale
-RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
 ENV JAVA_VERSION %%MAIN_VERSION%%
 ENV URL %%MAIN_SHA%%
+ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -o java.tar.gz "${URL}" && \
-	tar -xzf java.tar.gz -C /usr/local && \
+	sudo tar -xzf java.tar.gz -C /usr/local && \
 	rm java.tar.gz && \
-	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
-	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
-	ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws
-	
-ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
-	
-WORKDIR /root/project
+	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
+	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
+	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws && \
+	java --version && \
+	javac --version
