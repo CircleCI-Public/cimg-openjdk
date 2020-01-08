@@ -1,6 +1,6 @@
 <div align="center">
 	<p>
-		<img alt="CircleCI Logo" src="https://raw.github.com/CircleCI-Public/cimg-nopenjdk/master/img/circle-circleci.svg?sanitize=true" width="75" />
+		<img alt="CircleCI Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/master/img/circle-circleci.svg?sanitize=true" width="75" />
 		<img alt="Docker Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/master/img/circle-docker.svg?sanitize=true" width="75" />
 		<img alt="OpenJDK Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/master/img/circle-openjdk.svg?sanitize=true" width="75" />
 	</p>
