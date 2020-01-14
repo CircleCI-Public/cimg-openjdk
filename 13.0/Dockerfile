@@ -15,5 +15,24 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws && \
-	java --version && \
-	javac --version
+	# The dual version command is to support OpenJDK 8
+	java --version || java -version && \
+	javac --version || javac -version
+
+ENV MAVEN_VERSION=3.6.3 \
+	PATH=/opt/apache-maven/bin:$PATH
+RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
+	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
+	sudo tar -xzf apache-maven.tar.gz -C /opt/ && \
+	rm apache-maven.tar.gz && \
+	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
+	mvn --version
+
+ENV GRADLE_VERSION=6.0.1 \
+	PATH=/opt/gradle/bin:$PATH
+RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
+	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
+	sudo unzip -d /opt gradle.zip && \
+	rm gradle.zip && \
+	sudo ln -s /opt/gradle-* /opt/gradle && \
+	gradle --version
