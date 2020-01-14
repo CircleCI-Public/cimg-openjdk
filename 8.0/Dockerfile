@@ -1,11 +1,11 @@
 # vim:set ft=dockerfile:
 
-FROM cimg/%%PARENT%%:2020.01
+FROM cimg/base:2020.01
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION %%MAIN_VERSION%%
-ENV URL %%MAIN_SHA%%
+ENV JAVA_VERSION 8.0.232
+ENV URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u232-b09/OpenJDK8U-jdk_x64_linux_hotspot_8u232b09.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
