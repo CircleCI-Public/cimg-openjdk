@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-docker build --file 8.0/Dockerfile -t cimg/openjdk:8.0.242  -t cimg/openjdk:8.0 .
-docker build --file 8.0/node/Dockerfile -t cimg/openjdk:8.0.242-node  -t cimg/openjdk:8.0-node .
+docker build --file 11.0/Dockerfile -t cimg/openjdk:11.0.6  -t cimg/openjdk:11.0 .
+docker build --file 11.0/node/Dockerfile -t cimg/openjdk:11.0.6-node  -t cimg/openjdk:11.0-node .
