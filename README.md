@@ -50,18 +50,28 @@ You can now use OpenJDK within the steps for this job.
 
 This image contains the Java programming language packaged as OpenJDK by [AdoptOpenJDK](https://adoptopenjdk.net/).
 
+### Variants
+
+This image has a Node.js variant.
+Variant images typically contain the same base software, but with a few additional modifications.
+The Node.js variant is the same OpenJDK image but with Node.js also installed.
+The Node.js variant can be used by appending `-node` to the end of an existing `cimg/openjdk` tag.
+
 ### Tagging Scheme
 
 This image has the following tagging scheme:
 
 ```
-cimg/openjdk:<openjdk-version>
+cimg/openjdk:<openjdk-version>[-variant]
 ```
 
 `<openjdk-version>` - The version of OpenJDK to use.
 This can be a full SemVer point release (such as `11.0.2`) or just the minor release (such as `11.0`).
 If you use the minor release tag, it will automatically point to future patch updates as they are released by AdoptOpenJDK & Oracle.
 For example, the tag `11.0` points to OpenJDK v11.0.5 now, but when the next release comes out, it will point to OpenJDK v11.0.6.
+
+`[-variant]` - Variant tags, if available, can optionally be used.
+For example, the Node.js variant could be used like this: `cimg/openjdk:14.0-node`.
 
 
 ## Development
