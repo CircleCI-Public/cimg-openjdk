@@ -5,7 +5,7 @@ FROM cimg/%%PARENT%%:2020.03
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
 ENV JAVA_VERSION %%MAIN_VERSION%%
-ENV URL %%MAIN_SHA%%
+ENV URL %%PARAM1%%
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
