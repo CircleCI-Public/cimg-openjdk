@@ -10,7 +10,7 @@
 
 [![CircleCI Build Status](https://circleci.com/gh/CircleCI-Public/cimg-openjdk.svg?style=shield)](https://circleci.com/gh/CircleCI-Public/cimg-openjdk) [![Software License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/CircleCI-Public/cimg-openjdk/master/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/cimg/openjdk)](https://hub.docker.com/r/cimg/openjdk) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/ecosystem/circleci-images)
 
-***This image is in beta and is designed to supercede the original CircleCI OpenJDK image, `circleci/openjdk`.***
+***This image is designed to supercede the legacy CircleCI OpenJDK image, `circleci/openjdk`.***
 
 `cimg/openjdk` is a Docker image created by CircleCI with continuous integration builds in mind.
 Each tag contains a version of OpenJDK, the Java Development Kit and any binaries and tools that are required for builds to complete successfully in a CircleCI environment.
@@ -35,14 +35,14 @@ For example:
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:14.0
     steps:
       - checkout
       - run: java --version
 ```
 
 In the above example, the CircleCI OpenJDK Docker image is used for the primary container.
-More specifically, the tag `11.0` is used meaning the version of OpenJDK will be v11.0.x where 'x' is the latest patch release.
+More specifically, the tag `14.0` is used meaning the version of OpenJDK will be v14.0.x where 'x' is the latest patch release.
 You can now use OpenJDK within the steps for this job.
 
 
@@ -114,12 +114,12 @@ Dockerfiles can be generated for a specific OpenJDK version using the `gen-docke
 For example, to generate the Dockerfile for OpenJDK v11.0.5, you would run the following from the root of the repo:
 
 ```bash
-./shared/gen-dockerfiles.sh 11.0.5 https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.5%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.5_10.tar.gz
+./shared/gen-dockerfiles.sh 11.0.5#https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.5%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.5_10.tar.gz
 ```
 
 The generated Dockerfile will be located at `./11.0/Dockefile`.
 Unlike most of the CircleCI Convenience Images, the OpenJDK image requires not only the version number to be passed but the AdoptOpenJDK download URL as well.
-This is due to inconsistances with the extra build number they add to their version numbers, which doesn't fit our SemVer scheme.
+This is due to inconsistencies with the extra build number they add to their version numbers, which doesn't fit the SemVer scheme.
 To build this image locally and try it out, you can run the following:
 
 ```bash
@@ -142,11 +142,23 @@ When releasing proper images for CircleCI, this script is run from a CircleCI pi
 ### Publishing Official Images (for Maintainers only)
 
 The individual scripts (above) can be used to create the correct files for an image, and then added to a new git branch, committed, etc.
-Most CircleCI Convenience Images can use the `release.sh` script to publish new versions.
-This image doesn't currently support that script.
-To publish a release, a new branch needs to be created manually and the `gen-dockerfiles.sh` script mentioned above needs to be used.
-This will likely change in the future as the Next-Gen image platform becomes more sophisticated.
-The string `[release]` needs to be included in the commit message for CircleCI to publish an image to Docker Hub production.
+A release script is included to make this process easier.
+To make a proper release for this image, let's use the fake OpenJDK version of OpenJDK v9.9.9 and a fake release URL, you would run the following from the repo root:
+
+```bash
+./shared/release.sh 9.9.9#https://github.com/AdoptOpenJDK/openjdk9-binaries/releases/download/jdk-9.9.9%2B10/OpenJDK9U-jdk_x64_linux_hotspot_9.9.9_10.tar.gz
+```
+
+This will automatically create a new Git branch, generate the Dockerfile(s), stage the changes, commit them, and push them to GitHub.
+The commit message will end with the string `[release]`.
+This string is used by CircleCI to know when to push images to Docker Hub.
+All that would need to be done after that is:
+
+- wait for build to pass on CircleCI
+- review the PR
+- merge the PR
+
+The master branch build will then publish a release.
 
 ### Incorporating Changes
 
@@ -186,6 +198,7 @@ We encourage [issues](https://github.com/CircleCI-Public/cimg-openjdk/issues) to
 
 ## Additional Resources
 
+[AdoptOpenJDK](https://adoptopenjdk.net/) - AdoptOpenJDK is a project that builds OpenJDK builds from source. This is where we get our OpenJDK packages from.
 [CircleCI Docs](https://circleci.com/docs/) - The official CircleCI Documentation website.  
 [CircleCI Configuration Reference](https://circleci.com/docs/2.0/configuration-reference/#section=configuration) - From CircleCI Docs, the configuration reference page is one of the most useful pages we have.
 It will list all of the keys and values supported in `.circleci/config.yml`.  
