@@ -52,10 +52,24 @@ This image contains the Java programming language packaged as OpenJDK by [AdoptO
 
 ### Variants
 
-This image has a Node.js variant.
 Variant images typically contain the same base software, but with a few additional modifications.
+
+
+## Node.js
+
 The Node.js variant is the same OpenJDK image but with Node.js also installed.
 The Node.js variant can be used by appending `-node` to the end of an existing `cimg/openjdk` tag.
+
+```yaml
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:1.14-node
+    steps:
+      - checkout
+      - run: java --version
+      - run: node --version
+```
 
 ### Tagging Scheme
 
@@ -199,10 +213,10 @@ We encourage [issues](https://github.com/CircleCI-Public/cimg-openjdk/issues) to
 ## Additional Resources
 
 [AdoptOpenJDK](https://adoptopenjdk.net/) - AdoptOpenJDK is a project that builds OpenJDK builds from source. This is where we get our OpenJDK packages from.
-[CircleCI Docs](https://circleci.com/docs/) - The official CircleCI Documentation website.  
+[CircleCI Docs](https://circleci.com/docs/) - The official CircleCI Documentation website.
 [CircleCI Configuration Reference](https://circleci.com/docs/2.0/configuration-reference/#section=configuration) - From CircleCI Docs, the configuration reference page is one of the most useful pages we have.
-It will list all of the keys and values supported in `.circleci/config.yml`.  
-[Docker Docs](https://docs.docker.com/) - For simple projects this won't be needed but if you want to dive deeper into learning Docker, this is a great resource.  
+It will list all of the keys and values supported in `.circleci/config.yml`.
+[Docker Docs](https://docs.docker.com/) - For simple projects this won't be needed but if you want to dive deeper into learning Docker, this is a great resource.
 
 
 ## License
