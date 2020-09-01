@@ -15,9 +15,11 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws && \
+	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javap /usr/bin/javap && \
 	# The dual version command is to support OpenJDK 8
 	java --version || java -version && \
 	javac --version || javac -version
+	javap --version || javap -version
 
 ENV MAVEN_VERSION=3.6.3 \
 	PATH=/opt/apache-maven/bin:$PATH
