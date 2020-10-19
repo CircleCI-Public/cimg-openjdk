@@ -2,4 +2,4 @@
 
 repository=openjdk
 parent=base
-variants=(node)
+variants=(node browsers)
