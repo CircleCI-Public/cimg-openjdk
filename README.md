@@ -42,7 +42,7 @@ jobs:
 ```
 
 In the above example, the CircleCI OpenJDK Docker image is used for the primary container.
-More specifically, the tag `11.0` is used meaning the version of OpenJDK will be v11.0.x where 'x' is the latest patch release.
+More specifically, the tag `11.0` is used meaning the version of OpenJDK will be v11.0.
 You can now use OpenJDK within the steps for this job.
 
 
