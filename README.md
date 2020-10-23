@@ -35,14 +35,14 @@ For example:
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:15.0
     steps:
       - checkout
       - run: java --version
 ```
 
 In the above example, the CircleCI OpenJDK Docker image is used for the primary container.
-More specifically, the tag `11.0` is used meaning the version of OpenJDK will be v11.0.x where 'x' is the latest patch release.
+More specifically, the tag `15.0` is used meaning the version of OpenJDK will be v15.0.0.
 You can now use OpenJDK within the steps for this job.
 
 
