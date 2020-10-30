@@ -55,7 +55,7 @@ This image contains the Java programming language packaged as OpenJDK by [AdoptO
 Variant images typically contain the same base software, but with a few additional modifications.
 
 
-## Node.js
+#### Node.js
 
 The Node.js variant is the same OpenJDK image but with Node.js also installed.
 The Node.js variant can be used by appending `-node` to the end of an existing `cimg/openjdk` tag.
@@ -69,6 +69,31 @@ jobs:
       - checkout
       - run: java --version
       - run: node --version
+```
+
+#### Browsers
+
+**The browsers variants are currently in beta. Please feel free to contribute to the conversation [here](https://discuss.circleci.com/t/next-gen-convenience-image-browsers-variant-beta/37794).**
+
+The browsers variant is the same OpenJDK image but with Node.js, Selenium, and browser dependencies pre-installed via apt.
+The browsers variant can be used by appending `-browser` to the end of an existing `cimg/openjdk` tag.
+The browsers variant is designed to work in conjunction with the [CircleCI Browser Tools orb](https://circleci.com/developer/orbs/orb/circleci/browser-tools).
+You can use the orb to install a version of Google Chrome and/or Firefox into your build. The image contains all of the supporting tools needed to use both the browser and its driver.
+
+```yaml
+orbs:
+  browser-tools: circleci/browser-tools@1.1.0
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:1.14-browsers
+    steps:
+      - browser-tools/install-browsers
+      - checkout
+      - run: |
+          node --version
+          java --version
+          google-chome --version
 ```
 
 ### Tagging Scheme
