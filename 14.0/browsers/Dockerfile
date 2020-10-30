@@ -32,8 +32,6 @@ RUN sudo apt-get update && \
         libpango-1.0-0 \
         libpangocairo-1.0-0 \
         libxcursor1 \
-        # java for selenium
-        openjdk-11-jre \
         xdg-utils \
 	&& \
 	sudo rm -rf /var/lib/apt/lists/*
