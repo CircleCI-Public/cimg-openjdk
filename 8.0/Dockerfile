@@ -1,11 +1,11 @@
 # vim:set ft=dockerfile:
 
-FROM cimg/base:2020.06
+FROM cimg/base:2020.09
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION 8.0.265
-ENV URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01/OpenJDK8U-jdk_x64_linux_hotspot_8u265b01.tar.gz
+ENV JAVA_VERSION 8.0.272
+ENV URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u272-b10/OpenJDK8U-jdk_x64_linux_hotspot_8u272b10.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
@@ -15,6 +15,11 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws && \
+	# Install packages to help with legacy image migration
+	sudo apt-get update && sudo apt-get install -y \
+		fontconfig \
+	&& \
+	sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
 	# The dual version command is to support OpenJDK 8
 	java --version || java -version && \
 	javac --version || javac -version
@@ -28,7 +33,7 @@ RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=6.2.2 \
+ENV GRADLE_VERSION=6.7 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
