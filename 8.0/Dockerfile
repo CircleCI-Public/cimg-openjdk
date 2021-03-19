@@ -4,8 +4,8 @@ FROM cimg/base:2020.09
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION 8.0.275
-ENV URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u275-b01/OpenJDK8U-jdk_x64_linux_hotspot_8u275b01.tar.gz
+ENV JAVA_VERSION 8.0.282
+ENV URL https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u282-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u282b08.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
@@ -33,7 +33,7 @@ RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=6.7 \
+ENV GRADLE_VERSION=6.8.3 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \

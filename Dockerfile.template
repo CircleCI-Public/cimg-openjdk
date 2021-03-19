@@ -33,7 +33,7 @@ RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=6.7 \
+ENV GRADLE_VERSION=6.8.3 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \

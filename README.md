@@ -42,7 +42,7 @@ jobs:
 ```
 
 In the above example, the CircleCI OpenJDK Docker image is used for the primary container.
-More specifically, the tag `15.0` is used meaning the version of OpenJDK will be v15.0.0.
+More specifically, the tag `15.0` is used meaning the version of OpenJDK will be v15.0.2.
 You can now use OpenJDK within the steps for this job.
 
 
@@ -64,7 +64,7 @@ The Node.js variant can be used by appending `-node` to the end of an existing `
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:1.14-node
+      - image: cimg/openjdk:15.0-node
     steps:
       - checkout
       - run: java --version
@@ -84,7 +84,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:1.14-browsers
+      - image: cimg/openjdk:15.0-browsers
     steps:
       - browser-tools/install-browser-tools
       - checkout
@@ -103,12 +103,12 @@ cimg/openjdk:<openjdk-version>[-variant]
 ```
 
 `<openjdk-version>` - The version of OpenJDK to use.
-This can be a full SemVer point release (such as `11.0.2`) or just the minor release (such as `11.0`).
+This can be a full SemVer point release (such as `11.0.10`) or just the minor release (such as `11.0`).
 If you use the minor release tag, it will automatically point to future patch updates as they are released by AdoptOpenJDK & Oracle.
-For example, the tag `11.0` points to OpenJDK v11.0.5 now, but when the next release comes out, it will point to OpenJDK v11.0.6.
+For example, the tag `11.0` points to OpenJDK v11.0.10 now, but when the next release comes out, it will point to OpenJDK v11.0.11.
 
 `[-variant]` - Variant tags, if available, can optionally be used.
-For example, the Node.js variant could be used like this: `cimg/openjdk:14.0-node`.
+For example, the Node.js variant could be used like this: `cimg/openjdk:15.0-node`.
 
 
 ## Development
