@@ -18,6 +18,7 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws && \
+	sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/openjdk-11 && \
 	# Install packages to help with legacy image migration
 	sudo apt-get update && sudo apt-get install -y \
 		fontconfig \
