@@ -41,12 +41,3 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	rm gradle.zip && \
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
-
-ENV SBT_VERSION=1.5.5 \
-	PATH=/opt/sbt/bin:$PATH
-RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
-	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
-	sudo tar -xzf sbt.tar.gz -C /opt/ && \
-	rm sbt.tar.gz && \
-	sudo ln -s /opt/sbt-* /opt/sbt && \
-	sbt --version
