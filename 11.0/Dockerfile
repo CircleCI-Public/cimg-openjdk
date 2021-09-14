@@ -6,7 +6,7 @@ LABEL maintainer="Community & Partner Engineering Team <community-partner@circle
 
 ENV JAVA_VERSION 11.0.12
 ENV URL https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.12%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.12_7.tar.gz
-ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
+ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}/bin/java
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo mkdir /usr/local/jdk-${JAVA_VERSION} && \
