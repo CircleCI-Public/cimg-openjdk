@@ -4,8 +4,8 @@ FROM cimg/base:2021.07
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION 16.0.0
-ENV URL https://github.com/AdoptOpenJDK/openjdk16-binaries/releases/download/jdk-16%2B36/OpenJDK16-jdk_x64_linux_hotspot_16_36.tar.gz
+ENV JAVA_VERSION 12.0.0
+ENV URL https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jdk_x64_linux_hotspot_12_33.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
@@ -13,7 +13,7 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo tar -xzf java.tar.gz --strip-components=1 -C /usr/local/jdk-${JAVA_VERSION} && \
 	rm java.tar.gz && \
 		if [[ "$JAVA_VERSION" == *"0.0"* ]]; then \
-			sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-16; \
+			sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-12; \
 		fi && \
 \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
