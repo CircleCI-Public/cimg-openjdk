@@ -12,10 +12,9 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo mkdir /usr/local/jdk-${JAVA_VERSION} && \
 	sudo tar -xzf java.tar.gz --strip-components=1 -C /usr/local/jdk-${JAVA_VERSION} && \
 	rm java.tar.gz && \
-		if [[ "$JAVA_VERSION" == *"0.0"* ]]; then \
-			sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-11; \
-		fi && \
-\
+	if [[ "$JAVA_VERSION" == *"0.0"* ]]; then \
+		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-11; \
+	fi && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javaws /usr/bin/javaws && \
@@ -28,7 +27,7 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.8.1 \
+ENV MAVEN_VERSION=3.8.2 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -37,7 +36,7 @@ RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=7.1.1 \
+ENV GRADLE_VERSION=7.2 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
@@ -51,6 +50,6 @@ ENV SBT_VERSION=1.5.5 \
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
-	rm sbt.tar.gz && \
 	sudo ln -s /opt/sbt-* /opt/sbt && \
-	sbt --version
+	sbt about && \
+	rm -r sbt.tar.gz ~/project/project ~/project/target
