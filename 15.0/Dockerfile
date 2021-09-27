@@ -4,8 +4,8 @@ FROM cimg/base:2021.07
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION 15.0.0
-ENV URL https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15%2B36/OpenJDK15U-jdk_x64_linux_hotspot_15_36.tar.gz
+ENV JAVA_VERSION 15.0.2
+ENV URL https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jdk_x64_linux_hotspot_15.0.2_7.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
