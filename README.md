@@ -48,7 +48,7 @@ You can now use OpenJDK within the steps for this job.
 
 ## How This Image Works
 
-This image contains the Java programming language packaged as OpenJDK by [AdoptOpenJDK](https://adoptopenjdk.net/).
+This image contains the Java programming language packaged as OpenJDK by [Adoptiumn](https://adoptium.net/).
 
 ### Variants
 
@@ -104,7 +104,7 @@ cimg/openjdk:<openjdk-version>[-variant]
 
 `<openjdk-version>` - The version of OpenJDK to use.
 This can be a full SemVer point release (such as `11.0.10`) or just the minor release (such as `11.0`).
-If you use the minor release tag, it will automatically point to future patch updates as they are released by AdoptOpenJDK & Oracle.
+If you use the minor release tag, it will automatically point to future patch updates as they are released by Adoptium & Oracle.
 For example, the tag `11.0` points to OpenJDK v11.0.10 now, but when the next release comes out, it will point to OpenJDK v11.0.11.
 
 `[-variant]` - Variant tags, if available, can optionally be used.
@@ -155,7 +155,7 @@ For example, to generate the Dockerfile for OpenJDK v11.0.5, you would run the f
 ```
 
 The generated Dockerfile will be located at `./11.0/Dockefile`.
-Unlike most of the CircleCI Convenience Images, the OpenJDK image requires not only the version number to be passed but the AdoptOpenJDK download URL as well.
+Unlike most of the CircleCI Convenience Images, the OpenJDK image requires not only the version number to be passed but the Adoptium download URL as well.
 This is due to inconsistencies with the extra build number they add to their version numbers, which doesn't fit the SemVer scheme.
 To build this image locally and try it out, you can run the following:
 
@@ -235,7 +235,7 @@ We encourage [issues](https://github.com/CircleCI-Public/cimg-openjdk/issues) to
 
 ## Additional Resources
 
-[AdoptOpenJDK](https://adoptopenjdk.net/) - AdoptOpenJDK is a project that builds OpenJDK builds from source. This is where we get our OpenJDK packages from.
+[Adoptium](https://adoptium.net/) - Adoptium is a project that builds OpenJDK builds from source. This is where we get our OpenJDK packages from.
 [CircleCI Docs](https://circleci.com/docs/) - The official CircleCI Documentation website.
 [CircleCI Configuration Reference](https://circleci.com/docs/2.0/configuration-reference/#section=configuration) - From CircleCI Docs, the configuration reference page is one of the most useful pages we have.
 It will list all of the keys and values supported in `.circleci/config.yml`.
