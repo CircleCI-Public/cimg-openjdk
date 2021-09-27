@@ -4,8 +4,8 @@ FROM cimg/base:2021.07
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION 8.0.302
-ENV URL https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u302-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u302b08.tar.gz
+ENV JAVA_VERSION 17.0.0
+ENV URL https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17%2B35/OpenJDK17-jdk_x64_linux_hotspot_17_35.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
@@ -13,7 +13,7 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	sudo tar -xzf java.tar.gz --strip-components=1 -C /usr/local/jdk-${JAVA_VERSION} && \
 	rm java.tar.gz && \
 	if [[ "$JAVA_VERSION" == *"0.0"* ]]; then \
-		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-8; \
+		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-17; \
 	fi && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/java /usr/bin/java && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/javac /usr/bin/javac && \
