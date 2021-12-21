@@ -45,7 +45,7 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.5.7 \
+ENV SBT_VERSION=1.5.8 \
 	PATH=/opt/sbt/bin:$PATH
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
