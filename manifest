@@ -3,3 +3,4 @@
 repository=openjdk
 parent=base
 variants=(node browsers)
+namespace=cimg
