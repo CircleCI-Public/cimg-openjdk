@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  sonar: hubci/sonar@1.0.0
+
 workflows:
   main:
     jobs:
@@ -41,3 +44,11 @@ jobs:
 
               sonar set description cimg/openjdk ./README.md
             fi
+      - when:
+          condition:
+            equal: [main, << pipeline.git.branch >>]
+          steps:
+            - sonar/install:
+                version: "0.15.0"
+            - sonar/update-readme:
+                image: cimg/openjdk
