@@ -1,14 +1,14 @@
 <div align="center">
 	<p>
-		<img alt="CircleCI Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/master/img/circle-circleci.svg?sanitize=true" width="75" />
-		<img alt="Docker Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/master/img/circle-docker.svg?sanitize=true" width="75" />
-		<img alt="OpenJDK Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/master/img/circle-openjdk.svg?sanitize=true" width="75" />
+		<img alt="CircleCI Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/main/img/circle-circleci.svg?sanitize=true" width="75" />
+		<img alt="Docker Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/main/img/circle-docker.svg?sanitize=true" width="75" />
+		<img alt="OpenJDK Logo" src="https://raw.github.com/CircleCI-Public/cimg-openjdk/main/img/circle-openjdk.svg?sanitize=true" width="75" />
 	</p>
 	<h1>CircleCI Convenience Images => OpenJDK</h1>
 	<h3>A Continous Integration focused OpenJDK / Java Docker image built to run on CircleCI</h3>
 </div>
 
-[![CircleCI Build Status](https://circleci.com/gh/CircleCI-Public/cimg-openjdk.svg?style=shield)](https://circleci.com/gh/CircleCI-Public/cimg-openjdk) [![Software License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/CircleCI-Public/cimg-openjdk/master/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/cimg/openjdk)](https://hub.docker.com/r/cimg/openjdk) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/ecosystem/circleci-images)
+[![CircleCI Build Status](https://circleci.com/gh/CircleCI-Public/cimg-openjdk.svg?style=shield)](https://circleci.com/gh/CircleCI-Public/cimg-openjdk) [![Software License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/CircleCI-Public/cimg-openjdk/main/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/cimg/openjdk)](https://hub.docker.com/r/cimg/openjdk) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/ecosystem/circleci-images)
 
 ***This image is designed to supercede the legacy CircleCI OpenJDK image, `circleci/openjdk`.***
 
@@ -195,7 +195,7 @@ All that would need to be done after that is:
 - review the PR
 - merge the PR
 
-The master branch build will then publish a release.
+The main branch build will then publish a release.
 
 ### Incorporating Changes
 
