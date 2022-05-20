@@ -4,3 +4,6 @@
 docker build --file 17.0/Dockerfile -t cimg/openjdk:17.0.3  -t cimg/openjdk:17.0 .
 docker build --file 17.0/node/Dockerfile -t cimg/openjdk:17.0.3-node  -t cimg/openjdk:17.0-node .
 docker build --file 17.0/browsers/Dockerfile -t cimg/openjdk:17.0.3-browsers  -t cimg/openjdk:17.0-browsers .
+docker build --file 18.0/Dockerfile -t cimg/openjdk:18.0.1 -t cimg/openjdk:18.0 .
+docker build --file 18.0/node/Dockerfile -t cimg/openjdk:18.0.1-node  -t cimg/openjdk:18.0-node .
+docker build --file 18.0/browsers/Dockerfile -t cimg/openjdk:18.0.1-browsers  -t cimg/openjdk:18.0-browsers .
