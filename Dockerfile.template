@@ -29,7 +29,7 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.8.5 \
+ENV MAVEN_VERSION=3.8.6 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
