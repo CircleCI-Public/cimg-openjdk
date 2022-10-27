@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
 # Do not edit by hand; please use build scripts/templates to make changes
-docker push cimg/openjdk:11.0
-docker push cimg/openjdk:11.0.17
-docker push cimg/openjdk:11.0-node
-docker push cimg/openjdk:11.0.17-node
-docker push cimg/openjdk:11.0-browsers
-docker push cimg/openjdk:11.0.17-browsers
-docker push cimg/openjdk:17.0
-docker push cimg/openjdk:17.0.5
-docker push cimg/openjdk:17.0-node
-docker push cimg/openjdk:17.0.5-node
-docker push cimg/openjdk:17.0-browsers
-docker push cimg/openjdk:17.0.5-browsers
+docker push cimg/openjdk:19.0
+docker push cimg/openjdk:19.0.0
+docker push cimg/openjdk:19.0-node
+docker push cimg/openjdk:19.0.0-node
+docker push cimg/openjdk:19.0-browsers
+docker push cimg/openjdk:19.0.0-browsers
