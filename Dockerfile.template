@@ -22,6 +22,8 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-%%VERSION_MAJOR%%; \
 	fi && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/* /usr/bin/ && \
+	sudo mkdir -p /etc/ssl/certs/java/cacerts && \
+	sudo ln -s ${JAVA_HOME}/lib/security/cacerts /etc/ssl/certs/java/cacerts && \
 	# Install packages to help with legacy image migration
 	sudo apt-get update && sudo apt-get install -y \
 		fontconfig \
