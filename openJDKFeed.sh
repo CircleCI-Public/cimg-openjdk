@@ -4,19 +4,12 @@ shopt -s extglob
 
 vers=()
 
-git pull origin main
-
-echo "Initializing submodule..."
-git submodule update --init --recursive
-cd shared || exit
-git checkout feat/version-checking
-if [ -f automated-updates.sh ]; then
-  source automated-updates.sh
+if [ -f shared/automated-updates.sh ]; then
+  source shared/automated-updates.sh
 else
   echo "Check if submodule was loaded; automated-updates.sh is missing"
   exit 1
 fi
-cd ..
 
 versionCleaner () {
   local dirtyVersion=$1

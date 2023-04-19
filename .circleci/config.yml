@@ -78,4 +78,5 @@ jobs:
           name: Run version update script
           command: |
             sudo chmod +x openJDKFeed.sh
+            git submodule update --init --recursive
             ./openJDKFeed.sh
