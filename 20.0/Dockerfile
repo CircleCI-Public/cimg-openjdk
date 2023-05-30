@@ -11,7 +11,7 @@ FROM cimg/base:2023.04
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
 ENV JAVA_VERSION 20.0.1
-ENV URL 
+ENV URL https://github.com/adoptium/temurin20-binaries/releases/download/jdk-20.0.1%2B9/OpenJDK20U-jdk_x64_linux_hotspot_20.0.1_9.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
