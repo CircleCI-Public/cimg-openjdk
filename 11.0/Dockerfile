@@ -10,8 +10,8 @@ FROM cimg/base:2023.04
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION 11.0.19
-ENV URL https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.19%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.19_7.tar.gz
+ENV JAVA_VERSION 11.0.20
+ENV URL https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.20%2B8/OpenJDK11U-jdk_x64_linux_hotspot_11.0.20_8.tar.gz
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN curl -sSL -o java.tar.gz "${URL}" && \
@@ -33,7 +33,7 @@ RUN curl -sSL -o java.tar.gz "${URL}" && \
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.9.1 \
+ENV MAVEN_VERSION=3.9.3 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -42,7 +42,7 @@ RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=8.1 \
+ENV GRADLE_VERSION=8.2.1 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
@@ -51,7 +51,7 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.8.2 \
+ENV SBT_VERSION=1.9.2 \
 	PATH=/opt/sbt/bin:$PATH
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
