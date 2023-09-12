@@ -69,4 +69,6 @@ RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${S
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
 	sudo ln -s /opt/sbt-* /opt/sbt && \
 	sbt about && \
-	rm -rf sbt.tar.gz ~/project/project ~/project/target
+	rm -rf sbt.tar.gz ~/project/project ~/project/target && \
+	# install mill
+	curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.2/0.11.2-11-32f947 > mill && chmod +x mill
