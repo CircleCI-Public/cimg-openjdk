@@ -64,6 +64,7 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 
 ENV SBT_VERSION=1.9.2 \
 	PATH=/opt/sbt/bin:$PATH
+ENV MILL_VERSION=0.11.2
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
@@ -71,4 +72,4 @@ RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${S
 	sbt about && \
 	rm -rf sbt.tar.gz ~/project/project ~/project/target && \
 	# install mill
-	curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.2/0.11.2-11-32f947 > mill && chmod +x mill
+	curl -L https://github.com/com-lihaoyi/mill/releases/download/${MILL_VERSION}/${MILL_VERSION}-11-32f947 > mill && chmod +x mill
