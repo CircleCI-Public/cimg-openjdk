@@ -117,7 +117,7 @@ getOpenJDKVersion() {
   getSbtVersion "Dockerfile.template"
 
   # add or remove tracked openjdk versions here
-  openjdk_vers=(8 11 16 17 18 19)
+  openjdk_vers=(8 11 16 17 18 19 20 21)
 
   for jdkver in "${openjdk_vers[@]}"; do
     RSS_URL="https://github.com/adoptium/temurin${jdkver}-binaries/tags.atom"
