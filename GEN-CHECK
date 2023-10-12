@@ -1,1 +1,1 @@
-GEN_CHECK=(11.0.20 17.0.8)
+GEN_CHECK=(21.0#https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21%2B35/OpenJDK21U-jdk_x64_linux_hotspot_21_35.tar.gz)
