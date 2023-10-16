@@ -106,6 +106,22 @@ getSbtVersion () {
   done
 }
 
+getMillVersion () {
+  local templateFile=$1
+
+  RSS_URL="https://github.com/com-lihaoyi/mill/tags.atom"
+  VERSIONS=$(curl --silent "$RSS_URL" | grep -E '(title)' | tail -n +2 | sed -e 's/^[ \t]*//' | sed -e 's/<title>//' -e 's/<\/title>//')
+  echo $VERSIONS
+
+  for version in $VERSIONS; do
+    if [[ $version =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+      generateVersions "$version"
+      generateSearchTerms "SBT_VERSION=" "$templateFile" '"\\" " "'
+      replaceVersions "SBT_VERSION=" "$SEARCH_TERM" true
+    fi
+  done
+}
+
 getOpenJDKVersion() {
   echo "Getting latest Gradle version..."
   getGradleVersion "Dockerfile.template"
@@ -115,9 +131,12 @@ getOpenJDKVersion() {
 
   echo "Getting latest sbt version..."
   getSbtVersion "Dockerfile.template"
+  
+  echo "Getting latest Mill version..."
+  getMillVersion "Dockerfile.template"
 
   # add or remove tracked openjdk versions here
-  openjdk_vers=(8 11 16 17 18 19)
+  openjdk_vers=(8 11 16 17 18 19 20)
 
   for jdkver in "${openjdk_vers[@]}"; do
     RSS_URL="https://github.com/adoptium/temurin${jdkver}-binaries/tags.atom"
