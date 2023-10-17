@@ -73,4 +73,5 @@ RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${S
 	rm -rf sbt.tar.gz ~/project/project ~/project/target && \
 	# install mill docs: http://mill-build.com/mill/Installation_IDE_Support.html#_mills_bootstrap_script_linuxos_x_only
 	mill_URL="https://github.com/com-lihaoyi/mill/releases/download/${MILL_VERSION}/${MILL_VERSION}" && \
-	curl -sSL --fail --retry 3 $mill_URL > mill && chmod +x mill
+	curl -sSL --fail --retry 3 $mill_URL > mill && \
+	mv mill /usr/local/bin/mill && chmod +x /usr/local/bin/mill
