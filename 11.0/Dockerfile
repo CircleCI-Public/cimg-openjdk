@@ -10,7 +10,7 @@ FROM cimg/base:2023.07
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 
-ENV JAVA_VERSION 11.0.20
+ENV JAVA_VERSION 11.0.21
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
@@ -44,7 +44,7 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.9.3 \
+ENV MAVEN_VERSION=3.9.5 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -53,7 +53,7 @@ RUN dl_URL="https://www.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/ap
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=8.2.1 \
+ENV GRADLE_VERSION=8.4 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
@@ -62,11 +62,16 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.9.2 \
+ENV SBT_VERSION=1.9.6 \
 	PATH=/opt/sbt/bin:$PATH
+ENV MILL_VERSION=0.11.2
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
 	sudo ln -s /opt/sbt-* /opt/sbt && \
 	sbt about && \
-	rm -rf sbt.tar.gz ~/project/project ~/project/target
+	rm -rf sbt.tar.gz ~/project/project ~/project/target && \
+	# install mill docs: http://mill-build.com/mill/Installation_IDE_Support.html#_mills_bootstrap_script_linuxos_x_only
+	mill_URL="https://github.com/com-lihaoyi/mill/releases/download/${MILL_VERSION}/${MILL_VERSION}" && \
+	curl -sSL --fail --retry 3 $mill_URL > mill && \
+	mv mill /usr/local/bin/mill && chmod +x /usr/local/bin/mill
