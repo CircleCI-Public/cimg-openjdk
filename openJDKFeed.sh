@@ -11,51 +11,6 @@ else
   exit 1
 fi
 
-versionCleaner () {
-  local dirtyVersion=$1
-
-  case $dirtyVersion in
-    jdk8u+([0-9]*))
-      buildVersion=$(cut -d "-" -f2 <<< "${dirtyVersion}")
-      generateVersions "$(cut -d "-" -f1 <<< "${dirtyVersion}")"
-      newFullVersion=$(echo "$newVersion" | trimmer "j d k" | sed -r 's/u/.0./g')
-      newVersion=${newFullVersion}
-      ;;
-    jdk-+([0-9])*)
-      generateVersions "$(cut -d "-" -f2 <<< "${dirtyVersion}")"
-      buildVersion=$(cut -d "+" -f2 <<< "${newVersion}")
-      newVer=${newVersion%+*}
-      if [[ $newVer =~ ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]) ]]; then
-        newVersionExtended=${newVersion%+*}
-        newVersion=${newVer%.*}
-      else
-        newVersion=$newVer
-      fi
-      ;;
-    *)
-      echo "Nothing to clean"
-      return 1
-    ;;
-  esac
-
-  majorMinor=${newVersion%.*}
-
-  if [[ $majorMinor =~ ([0-9]+\.[0-9]+\.[0-9]) ]]; then
-    majorMinor=${majorMinor%.*}
-  fi
-}
-
-buildParameter() {
-  local newVersionString=$1
-
-  if [[ $newVersionString =~ ^8.0 ]]; then
-    export builtParam="#https://github.com/adoptium/temurin8-binaries/releases/download/$dirtyVersion/OpenJDK8U-jdk_x64_linux_hotspot_$newFullVersion$buildVersion.tar.gz"
-  else
-    export builtParam="#https://github.com/adoptium/temurin$jdkver-binaries/releases/download/jdk-$newVersionString%2B$buildVersion/OpenJDK${jdkver}U-jdk_x64_linux_hotspot_${newVersionString}_$buildVersion.tar.gz"
-  fi
-}
-
-
 getGradleVersion() {
   local templateFile=$1
 
@@ -74,7 +29,6 @@ getGradleVersion() {
     fi
   done
 }
-
 
 getMavenVersion() {
   local templateFile=$1
@@ -111,13 +65,25 @@ getMillVersion () {
 
   RSS_URL="https://github.com/com-lihaoyi/mill/tags.atom"
   VERSIONS=$(curl --silent "$RSS_URL" | grep -E '(title)' | tail -n +2 | sed -e 's/^[ \t]*//' | sed -e 's/<title>//' -e 's/<\/title>//')
-  echo $VERSIONS
 
   for version in $VERSIONS; do
     if [[ $version =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
       generateVersions "$version"
       generateSearchTerms "SBT_VERSION=" "$templateFile" '"\\" " "'
       replaceVersions "SBT_VERSION=" "$SEARCH_TERM" true
+    fi
+  done
+}
+
+getJava8 () {
+  JAVA_VERSIONS=$(curl -s "https://api.github.com/repos/adoptium/temurin8-binaries/releases" | jq -r ".[] | select(.tag_name | test(\"jdk8u[^-]\")) | .tag_name");
+  for version in $JAVA_VERSIONS; do
+    patch=$(echo "$version" | cut -d 'u' -f2 | cut -d '-' -f1)
+    generateSearchTerms "JAVA_VERSION" "8.0/Dockerfile"
+    versionEqual "$patch" "${SEARCH_TERM#*.*.}"
+    if [[ $(eval echo $?) -eq 0 ]]; then
+      vers+=("8.0.$patch")
+      break
     fi
   done
 }
@@ -131,36 +97,30 @@ getOpenJDKVersion() {
 
   echo "Getting latest sbt version..."
   getSbtVersion "Dockerfile.template"
-  
+
   echo "Getting latest Mill version..."
   getMillVersion "Dockerfile.template"
 
+  echo "Getting Java 8 Updates..."
+  getJava8
+
   # add or remove tracked openjdk versions here
-  openjdk_vers=(8 11 16 17 18 19 20)
+  openjdk_vers=(11 16 17 18 19 20)
 
   for jdkver in "${openjdk_vers[@]}"; do
-    RSS_URL="https://github.com/adoptium/temurin${jdkver}-binaries/tags.atom"
-    VERSIONS=$(curl --silent "$RSS_URL" | grep -E '(title)' | tail -n +2 | sed -e 's/^[ \t]*//' | sed -e 's/<title>//' -e 's/<\/title>//')
+    JAVA_VERSIONS=$(curl -s "https://api.github.com/repos/adoptium/temurin${jdkver}-binaries/releases" | jq -r ".[] | select(.tag_name | test(\"jdk-\")) | .tag_name")
 
-    for version in $VERSIONS; do
-      if [[ $version =~ jdk8u+([0-9])* || $version =~ jdk-[0-9]([0-9])* ]]; then
-        versionCleaner "$version"
-        if [ "$(eval echo $?)" -eq 1 ]; then
-          continue
-        fi
-
-        if [[ $newVersionExtended == "$newVersion" ]]; then
-          buildParameter "$newVersionExtended"
-        else
-          buildParameter "$newVersion"
-        fi
-
-        generateSearchTerms "JAVA_VERSION" "$majorMinor/Dockerfile"
-        directoryCheck "$majorMinor" "$SEARCH_TERM" "$builtParam"
-
-        if [[ $(eval echo $?) -eq 0 ]]; then
-          generateVersionString "$newVersion" "$builtParam"
-        fi
+    for version in $JAVA_VERSIONS; do
+      if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+\.[0-9] ]]; then
+        continue
+      fi
+      JAVA_VERSION=$(echo "$version" | cut -d '-' -f 2 | cut -d '+' -f 1)
+      JAVA_MAJOR=$(echo "$JAVA_VERSION" | cut -d '.' -f 1)
+      generateSearchTerms "JAVA_VERSION" "$JAVA_MAJOR.0/Dockerfile"
+      versionEqual "$JAVA_VERSION" "$SEARCH_TERM"
+      if [[ $(eval echo $?) -eq 0 ]]; then
+        vers+=("$JAVA_VERSION")
+        break
       fi
     done
   done
