@@ -62,7 +62,7 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.9.6 \
+ENV SBT_VERSION=1.9.7 \
 	PATH=/opt/sbt/bin:$PATH
 ENV MILL_VERSION=0.11.2
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
