@@ -69,8 +69,8 @@ getMillVersion () {
   for version in $VERSIONS; do
     if [[ $version =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
       generateVersions "$version"
-      generateSearchTerms "SBT_VERSION=" "$templateFile" '"\\" " "'
-      replaceVersions "SBT_VERSION=" "$SEARCH_TERM" true
+      generateSearchTerms "MILL_VERSION=" "$templateFile"
+      replaceVersions "MILL_VERSION=" "$SEARCH_TERM" true
     fi
   done
 }
