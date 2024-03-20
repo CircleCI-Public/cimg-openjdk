@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  cimg: circleci/cimg@0.6.1
+  cimg: circleci/cimg@0.6.2
   slack: circleci/slack@4.12.1
   gh: circleci/github-cli@2.2.0
 
@@ -14,7 +14,8 @@ workflows:
   automated-wf:
     when: << pipeline.parameters.cron >>
     jobs:
-      - check-feed:
+      - cimg/update:
+          update-script: openJDKFeed.sh
           context:
             - cpe-image-bot-github-creds
   main-wf:
@@ -54,49 +55,3 @@ workflows:
                 event: fail
                 mentions: "@images"
                 template: basic_fail_1
-
-jobs:
-  check-feed:
-    docker:
-      - image: cimg/base:current
-    resource_class: small
-    steps:
-      - checkout
-      - run:
-          name: SSH config to pull and push project
-          command: |
-            echo "$IMAGE_BOT_SIGNING_KEY_B64" | base64 -d > ~/.ssh/id_signing_key
-            chmod 600 ~/.ssh/id_signing_key
-
-            ssh-add -D
-            ssh-add ~/.ssh/id_signing_key
-            ssh-keygen -f ~/.ssh/id_signing_key -y > ~/.ssh/id_signing_key.pub
-            echo "$(cat ~/.ssh/id_signing_key.pub) $IMAGE_BOT_EMAIL" > ~/.ssh/allowed_signers
-
-      - run:
-          name: Run git config
-          command: |
-            cat \<<'EOF' >> ~/githelper.sh
-              #!/usr/bin/env bash
-              echo username=$GIT_USERNAME
-              echo password=$IMAGE_BOT_TOKEN
-            EOF
-
-            git config --global user.email "$IMAGE_BOT_EMAIL"
-            git config --global user.name "$GIT_USERNAME"
-            git config --global user.signingkey "$(cat ~/.ssh/id_signing_key.pub)"
-            git config --global gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers
-            git config --global url."https://github.com".insteadOf ssh://git@github.com
-            git config --global url."https://github.com/".insteadOf git@github.com:
-            git config --global credential.helper "/bin/bash ~/githelper.sh"
-            git config --global gpg.format ssh
-            git config --global commit.gpgsign true
-            git submodule sync
-      - gh/setup:
-          token: IMAGE_BOT_TOKEN
-      - run:
-          name: Run version update script
-          command: |
-            sudo chmod +x openJDKFeed.sh
-            git submodule update --init --recursive
-            ./openJDKFeed.sh
