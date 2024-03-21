@@ -78,6 +78,12 @@ getMillVersion () {
 getJava8 () {
   JAVA_VERSIONS=$(curl -s "https://api.github.com/repos/adoptium/temurin8-binaries/releases" | jq -r ".[] | select(.tag_name | test(\"jdk8u[^-]\")) | .tag_name");
   for version in $JAVA_VERSIONS; do
+
+    if [[ $version == *"-beta"* ]]; then
+      echo "Skipping beta version $version"
+      break
+    fi
+
     patch=$(echo "$version" | cut -d 'u' -f2 | cut -d '-' -f1)
     generateSearchTerms "JAVA_VERSION" "8.0/Dockerfile"
     versionEqual "$patch" "${SEARCH_TERM#*.*.}"
