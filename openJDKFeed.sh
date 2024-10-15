@@ -117,6 +117,10 @@ getOpenJDKVersion() {
     JAVA_VERSIONS=$(curl -s "https://api.github.com/repos/adoptium/temurin${jdkver}-binaries/releases" | jq -r ".[] | select(.tag_name | test(\"jdk-\")) | .tag_name")
 
     for version in $JAVA_VERSIONS; do
+      if [[ $version == *"-beta"* ]]; then
+        echo "Skipping beta version $version"
+        continue
+      fi
       if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+\.[0-9] ]]; then
         continue
       fi
