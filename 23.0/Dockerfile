@@ -10,7 +10,7 @@ FROM cimg/base:2024.02
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
-ENV JAVA_VERSION 22.0.0
+ENV JAVA_VERSION 23.0.0
 ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
@@ -30,7 +30,7 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	sudo tar -xzf java.tar.gz --strip-components=1 -C /usr/local/jdk-${JAVA_VERSION} && \
 	rm java.tar.gz && \
 	if [[ "$JAVA_VERSION" == *"0.0"* ]]; then \
-		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-22.0; \
+		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-23.0; \
 	fi && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/* /usr/bin/ && \
 	sudo mkdir -p /etc/ssl/certs/java/cacerts && \
