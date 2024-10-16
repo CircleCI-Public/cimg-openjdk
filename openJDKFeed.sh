@@ -126,6 +126,11 @@ getOpenJDKVersion() {
       fi
       JAVA_VERSION=$(echo "$version" | cut -d '-' -f 2 | cut -d '+' -f 1)
       JAVA_MAJOR=$(echo "$JAVA_VERSION" | cut -d '.' -f 1)
+      if [[ "$JAVA_VERSION" = "$JAVA_MAJOR" ]]; then
+        # If the full version matches the major, provide a fake .0 minor version to the full version.
+        # Otherwise, this causes downstream weirdness in the rest of the pile of scripts.
+        JAVA_VERSION="$JAVA_MAJOR.0"
+      fi
       generateSearchTerms "JAVA_VERSION" "$JAVA_MAJOR.0/Dockerfile"
       versionEqual "$JAVA_VERSION" "$SEARCH_TERM"
       if [[ $(eval echo $?) -eq 0 ]]; then
