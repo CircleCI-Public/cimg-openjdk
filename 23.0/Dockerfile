@@ -10,8 +10,8 @@ FROM cimg/base:2024.02
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
-ENV JAVA_VERSION 23.0
-ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
+ENV JAVA_VERSION=23.0
+ENV JAVA_HOME=/usr/local/jdk-${JAVA_VERSION}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d '.' -f 1) && \
@@ -22,17 +22,17 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 		JAVA_BUILD_SANITISED="${JAVA_BUILD//-/}"; \
 		URL="https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u${JAVA_BUILD}/OpenJDK8U-jdk_${ARCH}_linux_hotspot_8u${JAVA_BUILD_SANITISED}.tar.gz"; \
 	else \
-		JAVA_BUILD=$(curl -s "https://api.github.com/repos/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases" | jq "limit(1; .[] | select(.tag_name | startswith(\"jdk-${JAVA_VERSION}+\"))) | .tag_name | split(\"+\")[1]" | tr -d '"'); \
-		URL="https://github.com/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases/download/jdk-${JAVA_VERSION}%2B${JAVA_BUILD%.*}/OpenJDK${JAVA_MAJOR_VERSION}U-jdk_${ARCH}_linux_hotspot_${JAVA_VERSION}_${JAVA_BUILD%.*}.tar.gz"; \
+		JAVA_BUILD=$(curl -s "https://api.github.com/repos/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases" | jq "limit(1; .[] | select(.tag_name | startswith(\"jdk-${JAVA_MAJOR_VERSION}+\"))) | .tag_name | split(\"+\")[1]" | tr -d '"'); \
+		URL="https://github.com/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases/download/jdk-${JAVA_MAJOR_VERSION}%2B${JAVA_BUILD%.*}/OpenJDK${JAVA_MAJOR_VERSION}U-jdk_${ARCH}_linux_hotspot_${JAVA_MAJOR_VERSION}_${JAVA_BUILD%.*}.tar.gz"; \
 	fi && \
 	curl -sSL -o java.tar.gz "${URL}" && \
 	sudo mkdir /usr/local/jdk-${JAVA_VERSION} && \
 	sudo tar -xzf java.tar.gz --strip-components=1 -C /usr/local/jdk-${JAVA_VERSION} && \
 	rm java.tar.gz && \
-	if [[ "$JAVA_VERSION" == *"0.0"* ]]; then \
+	if [[ "$JAVA_VERSION" == *".0"* ]]; then \
 		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-23; \
 	fi && \
-	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/* /usr/bin/ && \
+	sudo ln -s /usr/local/jdk-${JAVA_MAJOR_VERSION}/bin/* /usr/bin/ && \
 	sudo mkdir -p /etc/ssl/certs/java/cacerts && \
 	sudo ln -s ${JAVA_HOME}/lib/security/cacerts /etc/ssl/certs/java/cacerts && \
 	# Install packages to help with legacy image migration
