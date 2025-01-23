@@ -1,6 +1,6 @@
 # vim:set ft=dockerfile:
 
-FROM cimg/openjdk:17.0.13
+FROM cimg/openjdk:17.0.14
 
 LABEL maintainer="Community & Partner Engineering Team <community-partner@circleci.com>"
 

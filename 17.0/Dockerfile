@@ -10,14 +10,14 @@ FROM cimg/base:2024.02
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
-ENV JAVA_VERSION 17.0.13
-ENV JAVA_HOME /usr/local/jdk-${JAVA_VERSION}
+ENV JAVA_VERSION=17.0.14
+ENV JAVA_HOME=/usr/local/jdk-${JAVA_VERSION}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d '.' -f 1) && \
 	JAVA_PATCH_VERSION=$(echo "$JAVA_VERSION" | cut -d '.' -f 3) && \
 	if [ "$JAVA_MAJOR_VERSION" = "8" ]; then \
-		JAVA_BUILD=$(curl -s "https://api.github.com/repos/adoptium/temurin8-binaries/releases" | jq ".[] | select(.tag_name | startswith(\"jdk8u${JAVA_PATCH_VERSION}\")) | select(.tag_name | contains("-beta") | not) | .tag_name" | tr -d '"'); \
+		JAVA_BUILD=$(curl -s "https://api.github.com/repos/adoptium/temurin8-binaries/releases" | jq ".[] | select(.tag_name | startswith(\"jdk8u${JAVA_PATCH_VERSION}\")) | select(.tag_name | contains(\"-beta\") | not) | .tag_name" | tr -d '"'); \
 		JAVA_BUILD="${JAVA_BUILD/jdk8u/}"; \
 		JAVA_BUILD_SANITISED="${JAVA_BUILD//-/}"; \
 		URL="https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u${JAVA_BUILD}/OpenJDK8U-jdk_${ARCH}_linux_hotspot_8u${JAVA_BUILD_SANITISED}.tar.gz"; \
@@ -53,7 +53,7 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=8.10.2 \
+ENV GRADLE_VERSION=8.12 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
@@ -62,14 +62,14 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.10.2 \
+ENV SBT_VERSION=1.10.7 \
 	PATH=/opt/sbt/bin:$PATH
-ENV MILL_VERSION=0.11.12
+ENV MILL_VERSION=0.12.5
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
 	sudo ln -s /opt/sbt-* /opt/sbt && \
-	sbt about && \
+	sbt about --allow-empty && \
 	rm -rf sbt.tar.gz ~/project/project ~/project/target && \
 	# install mill docs: http://mill-build.com/mill/Installation_IDE_Support.html#_mills_bootstrap_script_linuxos_x_only
 	mill_URL="https://github.com/com-lihaoyi/mill/releases/download/${MILL_VERSION}/${MILL_VERSION}" && \
