@@ -111,7 +111,7 @@ getOpenJDKVersion() {
   getJava8
 
   # add or remove tracked openjdk versions here
-  openjdk_vers=(11 16 17 18 19 20 21 22 23)
+  openjdk_vers=(11 16 17 18 19 20 21 22 23 24)
 
   for jdkver in "${openjdk_vers[@]}"; do
     JAVA_VERSIONS=$(curl -s "https://api.github.com/repos/adoptium/temurin${jdkver}-binaries/releases" | jq -r ".[] | select(.tag_name | test(\"jdk-\")) | .tag_name")
