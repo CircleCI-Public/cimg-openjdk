@@ -36,15 +36,13 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	sudo mkdir -p /etc/ssl/certs/java/cacerts && \
 	sudo ln -s ${JAVA_HOME}/lib/security/cacerts /etc/ssl/certs/java/cacerts && \
 	# Install packages to help with legacy image migration
-	sudo apt-get update && sudo apt-get install -y \
-		fontconfig \
-	&& \
+	sudo apt-get update && sudo apt-get install -y fontconfig && \
 	sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
 	# The dual version command is to support OpenJDK 8
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.9.9 \
+ENV MAVEN_VERSION=3.9.11 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -53,7 +51,7 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=8.12 \
+ENV GRADLE_VERSION=8.14 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
