@@ -10,7 +10,7 @@ FROM cimg/base:2024.02
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
-ENV JAVA_VERSION=21.0.8
+ENV JAVA_VERSION=21.0.6
 ENV JAVA_HOME=/usr/local/jdk-${JAVA_VERSION}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
@@ -36,13 +36,15 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	sudo mkdir -p /etc/ssl/certs/java/cacerts && \
 	sudo ln -s ${JAVA_HOME}/lib/security/cacerts /etc/ssl/certs/java/cacerts && \
 	# Install packages to help with legacy image migration
-	sudo apt-get update && sudo apt-get install -y fontconfig && \
+	sudo apt-get update && sudo apt-get install -y \
+		fontconfig \
+	&& \
 	sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
 	# The dual version command is to support OpenJDK 8
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.9.11 \
+ENV MAVEN_VERSION=3.9.9 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -51,7 +53,7 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=8.14.3 \
+ENV GRADLE_VERSION=8.12 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
@@ -60,9 +62,9 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.11.3 \
+ENV SBT_VERSION=1.10.7 \
 	PATH=/opt/sbt/bin:$PATH
-ENV MILL_VERSION=1.0.1
+ENV MILL_VERSION=0.12.5
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
