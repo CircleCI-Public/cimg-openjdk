@@ -23,7 +23,8 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 		URL="https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u${JAVA_BUILD}/OpenJDK8U-jdk_${ARCH}_linux_hotspot_8u${JAVA_BUILD_SANITISED}.tar.gz"; \
 	else \
 		# JAVA_BUILD=$(curl -s "https://api.github.com/repos/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases" | jq "limit(1; .[] | select(.tag_name | startswith(\"jdk-${JAVA_VERSION}+\"))) | .tag_name | split(\"+\")[1]" | tr -d '"'); \
-		URL="https://corretto.aws/downloads/latest/amazon-corretto-${JAVA_MAJOR_VERSION}-${ARCH}-linux-jdk.tar.gz"; \
+		URL="https://download.java.net/java/GA/jdk${JAVA_VERSION}/fdc5d0102fe0414db21410ad5834341f/12/GPL/openjdk-${JAVA_VERSION}_linux-${ARCH}_bin.tar.gz"; \
+		# URL="https://corretto.aws/downloads/latest/amazon-corretto-${JAVA_MAJOR_VERSION}-${ARCH}-linux-jdk.tar.gz"; \
 		# URL="https://github.com/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases/download/jdk-${JAVA_VERSION}%2B${JAVA_BUILD%.*}/OpenJDK${JAVA_MAJOR_VERSION}U-jdk_${ARCH}_linux_hotspot_${JAVA_VERSION}_${JAVA_BUILD%.*}.tar.gz"; \
 	fi && \
 	curl -sSL -o java.tar.gz "${URL}" && \
