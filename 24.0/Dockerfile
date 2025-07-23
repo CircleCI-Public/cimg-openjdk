@@ -6,11 +6,11 @@
 # specific reason to use a different one. This means January, April, July, or
 # October.
 
-FROM cimg/%%PARENT%%:2024.02
+FROM cimg/base:2024.02
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
-ENV JAVA_VERSION=%%MAIN_VERSION%%
+ENV JAVA_VERSION=24.0.2
 ENV JAVA_HOME=/usr/local/jdk-${JAVA_VERSION}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
@@ -22,15 +22,17 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 		JAVA_BUILD_SANITISED="${JAVA_BUILD//-/}"; \
 		URL="https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u${JAVA_BUILD}/OpenJDK8U-jdk_${ARCH}_linux_hotspot_8u${JAVA_BUILD_SANITISED}.tar.gz"; \
 	else \
-		JAVA_BUILD=$(curl -s "https://api.github.com/repos/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases" | jq "limit(1; .[] | select(.tag_name | startswith(\"jdk-${JAVA_VERSION}+\"))) | .tag_name | split(\"+\")[1]" | tr -d '"'); \
-		URL="https://github.com/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases/download/jdk-${JAVA_VERSION}%2B${JAVA_BUILD%.*}/OpenJDK${JAVA_MAJOR_VERSION}U-jdk_${ARCH}_linux_hotspot_${JAVA_VERSION}_${JAVA_BUILD%.*}.tar.gz"; \
+		# JAVA_BUILD=$(curl -s "https://api.github.com/repos/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases" | jq "limit(1; .[] | select(.tag_name | startswith(\"jdk-${JAVA_VERSION}+\"))) | .tag_name | split(\"+\")[1]" | tr -d '"'); \
+		URL="https://download.java.net/java/GA/jdk${JAVA_VERSION}/fdc5d0102fe0414db21410ad5834341f/12/GPL/openjdk-${JAVA_VERSION}_linux-${ARCH}_bin.tar.gz"; \
+		# URL="https://corretto.aws/downloads/latest/amazon-corretto-${JAVA_MAJOR_VERSION}-${ARCH}-linux-jdk.tar.gz"; \
+		# URL="https://github.com/adoptium/temurin${JAVA_MAJOR_VERSION}-binaries/releases/download/jdk-${JAVA_VERSION}%2B${JAVA_BUILD%.*}/OpenJDK${JAVA_MAJOR_VERSION}U-jdk_${ARCH}_linux_hotspot_${JAVA_VERSION}_${JAVA_BUILD%.*}.tar.gz"; \
 	fi && \
 	curl -sSL -o java.tar.gz "${URL}" && \
 	sudo mkdir /usr/local/jdk-${JAVA_VERSION} && \
 	sudo tar -xzf java.tar.gz --strip-components=1 -C /usr/local/jdk-${JAVA_VERSION} && \
 	rm java.tar.gz && \
 	if [[ "$JAVA_VERSION" == *"0.0"* ]]; then \
-		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-%%VERSION_MAJOR%%; \
+		sudo ln -s /usr/local/jdk-${JAVA_VERSION} /usr/local/jdk-24; \
 	fi && \
 	sudo ln -s /usr/local/jdk-${JAVA_VERSION}/bin/* /usr/bin/ && \
 	sudo mkdir -p /etc/ssl/certs/java/cacerts && \
