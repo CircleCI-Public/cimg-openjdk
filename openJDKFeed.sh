@@ -21,10 +21,12 @@ getGradleVersion() {
     if [[ $version =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
       generateVersions "$(cut -d "v" -f2 <<< "${version}")"
       generateSearchTerms "GRADLE_VERSION=" "$templateFile" '"\\" " "'
+
+      # THIS IS NOT TRUE; LETTING COMMENTED FOR NOW IN CASE IS REQUIRED
       # because Gradle (and Go) do not track the patch version if it ends in .0, this is necessary to account for the download URL
-      if [[ ${newVersion:(-2)} == ".0" ]]; then
-        newVersion=${newVersion%.*}
-      fi
+      # if [[ ${newVersion:(-2)} == ".0" ]]; then
+      #   newVersion=${newVersion%.*}
+      # fi
       replaceVersions "GRADLE_VERSION=" "$SEARCH_TERM" true
     fi
   done
