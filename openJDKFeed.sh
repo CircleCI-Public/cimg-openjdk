@@ -12,6 +12,7 @@ else
 fi
 
 getGradleVersion() {
+  # Check compatibiliy matrix https://docs.gradle.org/current/userguide/compatibility.html
   local templateFile=$1
 
   RSS_URL="https://github.com/gradle/gradle/releases.atom"
