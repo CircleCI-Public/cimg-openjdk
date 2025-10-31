@@ -58,7 +58,7 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=9.1.0 \
+ENV GRADLE_VERSION=8.14.3 \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
