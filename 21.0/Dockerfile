@@ -6,7 +6,7 @@
 # specific reason to use a different one. This means January, April, July, or
 # October.
 
-FROM cimg/base:2026.03-22.04
+FROM cimg/base:2026.08-22.04
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
@@ -67,7 +67,7 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=2.0.3 \
+ENV SBT_VERSION=1.12.14 \
 	PATH=/opt/sbt/bin:$PATH
 ENV MILL_VERSION=1.1.7
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
