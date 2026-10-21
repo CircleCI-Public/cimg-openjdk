@@ -45,7 +45,7 @@ RUN echo 'Package: *' | sudo tee -a /etc/apt/preferences.d/firefox.pref && \
 	echo 'Pin: release o=LP-PPA-mozillateam' | sudo tee -a /etc/apt/preferences.d/firefox.pref && \
 	echo 'Pin-Priority: 1001' | sudo tee -a /etc/apt/preferences.d/firefox.pref && \
 	sudo add-apt-repository --yes ppa:mozillateam/ppa && \
-	sudo apt-get install --no-install-recommends --yes firefox && \
+	sudo apt-get install --no-install-recommends --yes -o Acquire::Retries=5 firefox && \
 	sudo rm -rf /var/lib/apt/lists/* && \
 	firefox --version
 
