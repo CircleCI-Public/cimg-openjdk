@@ -55,7 +55,8 @@ getSbtVersion () {
   VERSIONS=$(curl --silent "$RSS_URL" | grep -E '(title)' | tail -n +2 | sed -e 's/^[ \t]*//' | sed -e 's/<title>//' -e 's/<\/title>//')
 
   for version in $VERSIONS; do
-    if [[ $version =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+    # only track sbt 1.x for now; sbt 2.x is not ready for these images
+    if [[ $version =~ ^1(\.[0-9]+)+$ ]]; then
       generateVersions "$version"
       generateSearchTerms "SBT_VERSION=" "$templateFile" '"\\" " "'
       replaceVersions "SBT_VERSION=" "$SEARCH_TERM" true
