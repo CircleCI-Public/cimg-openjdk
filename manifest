@@ -5,3 +5,6 @@ parent=base
 variants=(node browsers)
 namespace=cimg
 arm64=1
+base_version=2026.10-22.04
+new_version=2026.10-26.04
+new_tags=(27.0)
