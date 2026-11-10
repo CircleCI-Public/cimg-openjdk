@@ -6,7 +6,7 @@
 # specific reason to use a different one. This means January, April, July, or
 # October.
 
-FROM cimg/base:2026.10-22.04
+FROM cimg/base:2026.11-22.04
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
@@ -58,7 +58,12 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=9.8.2 \
+# Gradle 9 requires JDK 17+, so JDK 8 and 11 stay on the latest Gradle 8.x.
+ARG GRADLE_LATEST_VERSION=9.8.2
+ARG GRADLE_8X_VERSION=8.14.6
+ARG GRADLE_VERSION_8=${GRADLE_8X_VERSION}
+ARG GRADLE_VERSION_11=${GRADLE_8X_VERSION}
+ENV GRADLE_VERSION=${GRADLE_VERSION_8:-$GRADLE_LATEST_VERSION} \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
