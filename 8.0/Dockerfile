@@ -74,7 +74,11 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 
 ENV SBT_VERSION=1.13.1 \
 	PATH=/opt/sbt/bin:$PATH
-ENV MILL_VERSION=1.3.1
+# JDK 8 and 11 stay on mill 1.1.8.
+ARG MILL_LATEST_VERSION=1.3.1
+ARG MILL_VERSION_8=1.1.8
+ARG MILL_VERSION_11=1.1.8
+ENV MILL_VERSION=${MILL_VERSION_8:-$MILL_LATEST_VERSION}
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
