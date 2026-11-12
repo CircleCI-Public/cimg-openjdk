@@ -6,11 +6,11 @@
 # specific reason to use a different one. This means January, April, July, or
 # October.
 
-FROM cimg/base:2026.10-22.04
+FROM cimg/base:2026.11-22.04
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
-ENV JAVA_VERSION=8.0.504
+ENV JAVA_VERSION=8.0.512
 ENV JAVA_HOME=/usr/local/jdk-${JAVA_VERSION}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
@@ -49,7 +49,7 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.9.16 \
+ENV MAVEN_VERSION=3.10.0 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -58,7 +58,12 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=8.14.5 \
+# Gradle 9 requires JDK 17+, so JDK 8 and 11 stay on the latest Gradle 8.x.
+ARG GRADLE_LATEST_VERSION=9.8.2
+ARG GRADLE_8X_VERSION=8.14.6
+ARG GRADLE_VERSION_8=${GRADLE_8X_VERSION}
+ARG GRADLE_VERSION_11=${GRADLE_8X_VERSION}
+ENV GRADLE_VERSION=${GRADLE_VERSION_8:-$GRADLE_LATEST_VERSION} \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
@@ -67,9 +72,13 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.13.0 \
+ENV SBT_VERSION=1.13.1 \
 	PATH=/opt/sbt/bin:$PATH
-ENV MILL_VERSION=1.1.8
+# JDK 8 and 11 stay on mill 1.1.8.
+ARG MILL_LATEST_VERSION=1.3.1
+ARG MILL_VERSION_8=1.1.8
+ARG MILL_VERSION_11=1.1.8
+ENV MILL_VERSION=${MILL_VERSION_8:-$MILL_LATEST_VERSION}
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \

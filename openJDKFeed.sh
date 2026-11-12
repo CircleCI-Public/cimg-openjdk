@@ -21,16 +21,29 @@ getGradleVersion() {
   for version in $VERSIONS; do
     if [[ $version =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
       generateVersions "$(cut -d "v" -f2 <<< "${version}")"
-      generateSearchTerms "GRADLE_VERSION=" "$templateFile" '"\\" " "'
+      generateSearchTerms "GRADLE_LATEST_VERSION=" "$templateFile" '"\\" " "'
 
       # THIS IS NOT TRUE; LETTING COMMENTED FOR NOW IN CASE IS REQUIRED
       # because Gradle (and Go) do not track the patch version if it ends in .0, this is necessary to account for the download URL
       # if [[ ${newVersion:(-2)} == ".0" ]]; then
       #   newVersion=${newVersion%.*}
       # fi
-      replaceVersions "GRADLE_VERSION=" "$SEARCH_TERM" true
+      replaceVersions "GRADLE_LATEST_VERSION=" "$SEARCH_TERM" true
     fi
   done
+}
+
+# JDK 8 and 11 can't run Gradle 9+, so track the latest Gradle 8.x separately
+getGradle8xVersion() {
+  local templateFile=$1
+
+  version=$(curl --silent "https://services.gradle.org/versions/all" | jq -r '[.[] | select((.version | startswith("8.")) and .snapshot == false and .nightly == false and .releaseNightly == false and .broken == false and .milestoneFor == "" and .rcFor == "")][0].version')
+
+  if [[ $version =~ ^8(\.[0-9]+)+$ ]]; then
+    generateVersions "$version"
+    generateSearchTerms "GRADLE_8X_VERSION=" "$templateFile"
+    replaceVersions "GRADLE_8X_VERSION=" "$SEARCH_TERM" true
+  fi
 }
 
 getMavenVersion() {
@@ -73,8 +86,8 @@ getMillVersion () {
   for version in $VERSIONS; do
     if [[ $version =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
       generateVersions "$version"
-      generateSearchTerms "MILL_VERSION=" "$templateFile"
-      replaceVersions "MILL_VERSION=" "$SEARCH_TERM" true
+      generateSearchTerms "MILL_LATEST_VERSION=" "$templateFile"
+      replaceVersions "MILL_LATEST_VERSION=" "$SEARCH_TERM" true
     fi
   done
 }
@@ -101,6 +114,9 @@ getJava8 () {
 getOpenJDKVersion() {
   echo "Getting latest Gradle version..."
   getGradleVersion "Dockerfile.template"
+
+  echo "Getting latest Gradle 8.x version..."
+  getGradle8xVersion "Dockerfile.template"
 
   echo "Getting latest Maven version..."
   getMavenVersion "Dockerfile.template"
