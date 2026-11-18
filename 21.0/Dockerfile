@@ -6,12 +6,21 @@
 # specific reason to use a different one. This means January, April, July, or
 # October.
 
-FROM cimg/base:2026.10-22.04
+FROM cimg/base:2026.11-22.04
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
 ENV JAVA_VERSION=21.0.13
 ENV JAVA_HOME=/usr/local/jdk-${JAVA_VERSION}
+# Interim mitigation for CVE-2026-114938 (Java4Shell): disable the x86-64 Base64
+# intrinsic until patched Temurin builds ship for every line. JDK 8 lacks the flag and
+# refuses to start with it (even with IgnoreUnrecognizedVMOptions), so it is gated per
+# major version. JDK 8 and 11 are not affected. Remove once all lines are on fixed builds.
+ARG JAVA4SHELL_MITIGATION_17=1
+ARG JAVA4SHELL_MITIGATION_21=1
+ARG JAVA4SHELL_MITIGATION_25=1
+ARG JAVA4SHELL_MITIGATION_27=1
+ENV JAVA_TOOL_OPTIONS=${JAVA4SHELL_MITIGATION_21:+-XX:-UseBASE64Intrinsics}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d '.' -f 1) && \
@@ -58,7 +67,12 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	sudo ln -s /opt/apache-maven-* /opt/apache-maven && \
 	mvn --version
 
-ENV GRADLE_VERSION=9.8.2 \
+# Gradle 9 requires JDK 17+, so JDK 8 and 11 stay on the latest Gradle 8.x.
+ARG GRADLE_LATEST_VERSION=9.8.2
+ARG GRADLE_8X_VERSION=8.14.6
+ARG GRADLE_VERSION_8=${GRADLE_8X_VERSION}
+ARG GRADLE_VERSION_11=${GRADLE_8X_VERSION}
+ENV GRADLE_VERSION=${GRADLE_VERSION_21:-$GRADLE_LATEST_VERSION} \
 	PATH=/opt/gradle/bin:$PATH
 RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
 	curl -sSL --fail --retry 3 $dl_URL -o gradle.zip && \
@@ -67,9 +81,13 @@ RUN dl_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-b
 	sudo ln -s /opt/gradle-* /opt/gradle && \
 	gradle --version
 
-ENV SBT_VERSION=1.13.0 \
+ENV SBT_VERSION=1.13.1 \
 	PATH=/opt/sbt/bin:$PATH
-ENV MILL_VERSION=1.3.1
+# JDK 8 and 11 stay on mill 1.1.8.
+ARG MILL_LATEST_VERSION=1.3.1
+ARG MILL_VERSION_8=1.1.8
+ARG MILL_VERSION_11=1.1.8
+ENV MILL_VERSION=${MILL_VERSION_21:-$MILL_LATEST_VERSION}
 RUN dl_URL="https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o sbt.tar.gz && \
 	sudo tar -xzf sbt.tar.gz -C /opt/ && \
