@@ -58,7 +58,7 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.10.1 \
+ENV MAVEN_VERSION=3.10.2 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -68,8 +68,8 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	mvn --version
 
 # Gradle 9 requires JDK 17+, so JDK 8 and 11 stay on the latest Gradle 8.x.
-ARG GRADLE_LATEST_VERSION=9.8.2
-ARG GRADLE_8X_VERSION=8.14.6
+ARG GRADLE_LATEST_VERSION=9.9.2
+ARG GRADLE_8X_VERSION=8.14.8
 ARG GRADLE_VERSION_8=${GRADLE_8X_VERSION}
 ARG GRADLE_VERSION_11=${GRADLE_8X_VERSION}
 ENV GRADLE_VERSION=${GRADLE_VERSION_%%VERSION_MAJOR%%:-$GRADLE_LATEST_VERSION} \

@@ -10,8 +10,17 @@ FROM cimg/base:2026.11-22.04
 
 LABEL maintainer="CircleCI Execution Team <eng-execution@circleci.com>"
 
-ENV JAVA_VERSION=8.0.512
+ENV JAVA_VERSION=8.0.514
 ENV JAVA_HOME=/usr/local/jdk-${JAVA_VERSION}
+# Interim mitigation for CVE-2026-114938 (Java4Shell): disable the x86-64 Base64
+# intrinsic until patched Temurin builds ship for every line. JDK 8 lacks the flag and
+# refuses to start with it (even with IgnoreUnrecognizedVMOptions), so it is gated per
+# major version. JDK 8 and 11 are not affected. Remove once all lines are on fixed builds.
+ARG JAVA4SHELL_MITIGATION_17=1
+ARG JAVA4SHELL_MITIGATION_21=1
+ARG JAVA4SHELL_MITIGATION_25=1
+ARG JAVA4SHELL_MITIGATION_27=1
+ENV JAVA_TOOL_OPTIONS=${JAVA4SHELL_MITIGATION_8:+-XX:-UseBASE64Intrinsics}
 
 RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	JAVA_MAJOR_VERSION=$(echo "$JAVA_VERSION" | cut -d '.' -f 1) && \
@@ -49,7 +58,7 @@ RUN [[ $(uname -m) == "x86_64" ]] && ARCH="x64" || ARCH="aarch64" && \
 	java --version || java -version && \
 	javac --version || javac -version
 
-ENV MAVEN_VERSION=3.10.0 \
+ENV MAVEN_VERSION=3.10.2 \
 	PATH=/opt/apache-maven/bin:$PATH
 RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" && \
 	curl -sSL --fail --retry 3 $dl_URL -o apache-maven.tar.gz && \
@@ -59,8 +68,8 @@ RUN dl_URL="https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apa
 	mvn --version
 
 # Gradle 9 requires JDK 17+, so JDK 8 and 11 stay on the latest Gradle 8.x.
-ARG GRADLE_LATEST_VERSION=9.8.2
-ARG GRADLE_8X_VERSION=8.14.6
+ARG GRADLE_LATEST_VERSION=9.9.2
+ARG GRADLE_8X_VERSION=8.14.8
 ARG GRADLE_VERSION_8=${GRADLE_8X_VERSION}
 ARG GRADLE_VERSION_11=${GRADLE_8X_VERSION}
 ENV GRADLE_VERSION=${GRADLE_VERSION_8:-$GRADLE_LATEST_VERSION} \
