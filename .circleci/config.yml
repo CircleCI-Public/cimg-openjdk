@@ -31,10 +31,14 @@ jobs:
             bash ./temurin-release.sh generate '25.0.5.1#jdk-25.0.5.1+2'
       - setup_remote_docker
       - run:
-          name: Log in to Docker Hub
+          name: Log in to Docker Hub when credentials are available
           command: |
-            printf '%s\n' "${DOCKER_TOKEN:?Missing Docker Hub token}" |
-              docker login --username "${DOCKER_USER:?Missing Docker Hub username}" --password-stdin
+            if [[ -n ${DOCKER_TOKEN:-} && -n ${DOCKER_USER:-} ]]; then
+              printf '%s\n' "$DOCKER_TOKEN" |
+                docker login --username "$DOCKER_USER" --password-stdin
+            else
+              echo 'Docker Hub credentials unavailable. Pulling public images anonymously.'
+            fi
       - run:
           name: Build and run the generated OpenJDK image
           command: |
