@@ -9,6 +9,44 @@ parameters:
     type: boolean
     default: false
 
+jobs:
+  test:
+    executor:
+      name: cimg/default
+      resource_class: 2xlarge+.gen2
+    steps:
+      - checkout
+      - run:
+          name: Test release scripts
+          command: python3 -B -m unittest discover -s tests
+      - run:
+          name: Prepare versions for the diff check
+          command: bash .circleci/prepare-release.sh versions
+      - setup_remote_docker
+      - cimg/check-diff
+      - run:
+          name: Prepare staging tags
+          command: bash .circleci/prepare-release.sh
+      - cimg/build-images:
+          docker-namespace: ccitest
+          docker-repository: openjdk
+  deploy:
+    executor:
+      name: cimg/default
+      resource_class: 2xlarge+.gen2
+    steps:
+      - checkout
+      - run:
+          name: Check for a release commit
+          command: |
+            if [[ $(git log -1 --format=%s) != *'[release]'* ]]; then
+              circleci step halt
+            fi
+      - setup_remote_docker
+      - run:
+          name: Publish the checked-out release
+          command: bash .circleci/publish-release.sh
+
 workflows:
   automated-wf:
     when: << pipeline.parameters.cron >>
@@ -23,11 +61,8 @@ workflows:
     when:
       not: << pipeline.parameters.cron >>
     jobs:
-      - cimg/build-and-deploy:
+      - test:
           name: "Test"
-          resource-class: 2xlarge+.gen2
-          docker-namespace: ccitest
-          docker-repository: openjdk
           filters:
             branches:
               ignore:
@@ -42,10 +77,9 @@ workflows:
                 event: fail
                 mentions: "@images"
                 template: basic_fail_1
-      - cimg/build-and-deploy:
+      - deploy:
           name: "Deploy"
-          resource-class: 2xlarge+.gen2
-          docker-repository: openjdk
+          serial-group: << pipeline.project.slug >>/publish
           filters:
             branches:
               only:

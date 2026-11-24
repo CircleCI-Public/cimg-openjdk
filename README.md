@@ -106,9 +106,10 @@ cimg/openjdk:<openjdk-version>[-variant]
 ```
 
 `<openjdk-version>` - The version of OpenJDK to use.
-This can be a full SemVer point release (such as `11.0.10`) or just the minor release (such as `11.0`).
-If you use the minor release tag, it will automatically point to future patch updates as they are released by Adoptium & Oracle.
-For example, the tag `11.0` points to OpenJDK v11.0.10 now, but when the next release comes out, it will point to OpenJDK v11.0.11.
+Two-component tags such as `25.0` track the latest image published for that JDK series.
+When an emergency patch such as `25.0.5.1` is published, the full version gets its own tag and the three-component tag `25.0.5` moves to the same image.
+A subsequent release such as `25.0.6` moves `25.0` and leaves `25.0.5` pointing to its last published patch.
+Variant tags follow the same rules.
 
 `[-variant]` - Variant tags, if available, can optionally be used.
 For example, the Node.js variant could be used like this: `cimg/openjdk:15.0-node`.
@@ -198,7 +199,8 @@ All that would need to be done after that is:
 - review the PR
 - merge the PR
 
-The main branch build will then publish a release.
+The main branch Deploy job publishes the checked-out release commit using the images staged by Test.
+A tag already pointing to a newer JDK version or known Temurin build stays where it is. Its older variant aliases are also left in place.
 
 ### Incorporating Changes
 
