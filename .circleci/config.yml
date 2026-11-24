@@ -8,10 +8,102 @@ parameters:
   cron:
     type: boolean
     default: false
+  release-sha:
+    type: string
+    default: ""
+
+jobs:
+  test-template:
+    executor: cimg/default
+    steps:
+      - checkout
+      - run:
+          name: Check for template build changes
+          command: |
+            git fetch --no-tags origin refs/heads/main
+            if git diff --quiet FETCH_HEAD HEAD -- Dockerfile.template temurin-release.sh manifest shared .gitmodules .circleci/config.yml; then
+              circleci step halt
+            fi
+      - run:
+          name: Generate a Dockerfile with a pinned Temurin patch release
+          command: |
+            git -c submodule.shared.url=https://github.com/CircleCI-Public/cimg-shared.git submodule update --init shared
+            bash ./temurin-release.sh generate '25.0.5.1#jdk-25.0.5.1+2'
+      - setup_remote_docker
+      - run:
+          name: Log in to Docker Hub when credentials are available
+          command: |
+            if [[ -n ${DOCKER_TOKEN:-} && -n ${DOCKER_USER:-} ]]; then
+              printf '%s\n' "$DOCKER_TOKEN" |
+                docker login --username "$DOCKER_USER" --password-stdin
+            else
+              echo 'Docker Hub credentials unavailable. Pulling public images anonymously.'
+            fi
+      - run:
+          name: Build and run the generated OpenJDK image
+          command: |
+            docker buildx build --load --platform linux/amd64 --tag cimg-openjdk-template-check:ci --file 25.0/Dockerfile .
+            docker run --rm --network=none cimg-openjdk-template-check:ci java -version 2>&1 | grep -F 'Temurin-25.0.5.1+2'
+  test:
+    executor:
+      name: cimg/default
+      resource_class: 2xlarge+.gen2
+    steps:
+      - checkout
+      - run:
+          name: Test release scripts
+          command: python3 -B -m unittest discover -s tests
+      - run:
+          name: Prepare versions for the diff check
+          command: bash .circleci/prepare-release.sh versions
+      - setup_remote_docker
+      - cimg/check-diff
+      - run:
+          name: Prepare staging tags
+          command: bash .circleci/prepare-release.sh
+      - cimg/build-images:
+          docker-namespace: ccitest
+          docker-repository: openjdk
+  restage-release:
+    executor:
+      name: cimg/default
+      resource_class: 2xlarge+.gen2
+    steps:
+      - checkout:
+          method: full
+      - run:
+          name: Prepare all staging builds for the requested release
+          environment:
+            RELEASE_SHA: << pipeline.parameters.release-sha >>
+          command: bash .circleci/restage-release.sh "$RELEASE_SHA"
+      - setup_remote_docker
+      - cimg/build-images:
+          publish-branch: never-main
+          docker-namespace: ccitest
+          docker-repository: openjdk
+  deploy:
+    executor:
+      name: cimg/default
+      resource_class: 2xlarge+.gen2
+    steps:
+      - checkout
+      - run:
+          name: Check for a release commit
+          command: |
+            if [[ $(git log -1 --format=%s) != *'[release]'* ]]; then
+              circleci step halt
+            fi
+      - setup_remote_docker
+      - run:
+          name: Publish the checked-out release
+          command: bash .circleci/publish-release.sh
 
 workflows:
   automated-wf:
-    when: << pipeline.parameters.cron >>
+    when:
+      and:
+        - << pipeline.parameters.cron >>
+        - equal: ["", << pipeline.parameters.release-sha >>]
     jobs:
       - cimg/update:
           update-script: openJDKFeed.sh
@@ -21,13 +113,19 @@ workflows:
             - cpe-image-bot-github-creds
   main-wf:
     when:
-      not: << pipeline.parameters.cron >>
+      and:
+        - not: << pipeline.parameters.cron >>
+        - equal: ["", << pipeline.parameters.release-sha >>]
     jobs:
-      - cimg/build-and-deploy:
+      - test-template:
+          context:
+            - cimg-docker-image-building
+          filters:
+            branches:
+              ignore:
+                - main
+      - test:
           name: "Test"
-          resource-class: 2xlarge+.gen2
-          docker-namespace: ccitest
-          docker-repository: openjdk
           filters:
             branches:
               ignore:
@@ -42,10 +140,9 @@ workflows:
                 event: fail
                 mentions: "@images"
                 template: basic_fail_1
-      - cimg/build-and-deploy:
+      - deploy:
           name: "Deploy"
-          resource-class: 2xlarge+.gen2
-          docker-repository: openjdk
+          serial-group: << pipeline.project.slug >>/publish
           filters:
             branches:
               only:
@@ -61,3 +158,15 @@ workflows:
                 event: fail
                 mentions: "@images"
                 template: basic_fail_1
+  restage-wf:
+    when:
+      not:
+        equal: ["", << pipeline.parameters.release-sha >>]
+    jobs:
+      - restage-release:
+          context:
+            - cimg-docker-image-building
+          filters:
+            branches:
+              only:
+                - main

@@ -106,9 +106,10 @@ cimg/openjdk:<openjdk-version>[-variant]
 ```
 
 `<openjdk-version>` - The version of OpenJDK to use.
-This can be a full SemVer point release (such as `11.0.10`) or just the minor release (such as `11.0`).
-If you use the minor release tag, it will automatically point to future patch updates as they are released by Adoptium & Oracle.
-For example, the tag `11.0` points to OpenJDK v11.0.10 now, but when the next release comes out, it will point to OpenJDK v11.0.11.
+Two-component tags such as `25.0` track the latest image published for that JDK series.
+When an emergency patch such as `25.0.5.1` is published, the full version gets its own tag and the three-component tag `25.0.5` moves to the same image.
+A subsequent release such as `25.0.6` moves `25.0` and leaves `25.0.5` pointing to its last published patch.
+Variant tags follow the same rules.
 
 `[-variant]` - Variant tags, if available, can optionally be used.
 For example, the Node.js variant could be used like this: `cimg/openjdk:15.0-node`.
@@ -150,22 +151,21 @@ git clone --recurse-submodules git@github.com:CircleCI-Public/cimg-openjdk.git
 
 ### Generating Dockerfiles
 
-Dockerfiles can be generated for a specific OpenJDK version using the `gen-dockerfiles.sh` script.
-For example, to generate the Dockerfile for OpenJDK v11.0.5, you would run the following from the root of the repo:
+Dockerfiles can be generated for a specific OpenJDK version using the `temurin-release.sh generate` command.
+For example, to generate the Dockerfile for Temurin `11.0.33.1+1` with its release tag pinned, run the following from the root of the repo:
 
 ```bash
-./shared/gen-dockerfiles.sh 11.0.5#https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.5%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.5_10.tar.gz
+bash ./temurin-release.sh generate 11.0.33.1#jdk-11.0.33.1+1
 ```
 
-The generated Dockerfile will be located at `./11.0/Dockefile`.
-Unlike most of the CircleCI Convenience Images, the OpenJDK image requires not only the version number to be passed but the Adoptium download URL as well.
-This is due to inconsistencies with the extra build number they add to their version numbers, which doesn't fit the SemVer scheme.
+The generated Dockerfile will be located at `./11.0/Dockerfile`.
+For JDK 11 and later, an explicit release tag must match the requested JDK version. If omitted, the Dockerfile looks up a stable Temurin build for that version. JDK 8 uses the version alone.
 To build this image locally and try it out, you can run the following:
 
 ```bash
 cd 11.0
-docker build -t test/openjdk:11.0.5 .
-docker run -it test/openjdk:11.0.5 bash
+docker build -t test/openjdk:11.0.33.1 .
+docker run -it test/openjdk:11.0.33.1 bash
 ```
 
 ### Building the Dockerfiles
@@ -183,10 +183,10 @@ When releasing proper images for CircleCI, this script is run from a CircleCI pi
 
 The individual scripts (above) can be used to create the correct files for an image, and then added to a new git branch, committed, etc.
 A release script is included to make this process easier.
-To make a proper release for this image, let's use the fake OpenJDK version of OpenJDK v9.9.9 and a fake release URL, you would run the following from the repo root:
+To prepare a release with a pinned Temurin build, run the following from the repo root:
 
 ```bash
-./shared/release.sh 9.9.9#https://github.com/AdoptOpenJDK/openjdk9-binaries/releases/download/jdk-9.9.9%2B10/OpenJDK9U-jdk_x64_linux_hotspot_9.9.9_10.tar.gz
+bash ./temurin-release.sh release 11.0.33.1#jdk-11.0.33.1+1
 ```
 
 This will automatically create a new Git branch, generate the Dockerfile(s), stage the changes, commit them, and push them to GitHub.
@@ -198,7 +198,43 @@ All that would need to be done after that is:
 - review the PR
 - merge the PR
 
-The main branch build will then publish a release.
+The main branch Deploy job publishes the checked-out release commit using the images staged by Test.
+A tag already pointing to a newer JDK version or known Temurin build stays where it is. Its older variant aliases are also left in place.
+
+### Recovering a release
+
+Rerun Deploy only for the latest `[release]` commit on `main`. A previous release with the same JDK version and Temurin build can replace an image published from a later commit.
+
+If a staging image is missing or its parent digest does not match, rebuild the complete staging set for that release first. The recovery workflow supports releases whose original Deploy uses `.circleci/publish-release.sh` to read `stage-<tree>` tags.
+
+Set `CIRCLE_TOKEN` to a CircleCI personal API token, and use the pipeline definition ID and full SHA of the merged `[release]` commit. GitHub OAuth uses a `gh/` or `github/` project slug and requires the CircleCI project ID in `filter[project_id]`. GitHub App uses a `circleci/` project slug and can leave `project_id` empty. [Find your CircleCI IDs](https://circleci.com/docs/guides/toolkit/how-to-find-ids/) · [CircleCI API v3 trigger guide](https://circleci.com/docs/guides/toolkit/api-v1-migration-guide/#replace-trigger-calls-using-api-v3)
+
+```bash
+definition_id='<pipeline-definition-id>'
+release_sha='<merged-release-commit-sha>'
+project_id='' # Set to the CircleCI project ID for GitHub OAuth.
+api_url='https://circleci.com/api/v3/runs'
+if [[ -n "$project_id" ]]; then
+  api_url+="?filter[project_id]=$project_id"
+fi
+
+jq -n --arg id "$definition_id" --arg sha "$release_sha" '{
+  data: {
+    attributes: {
+      config: {branch: "main"},
+      checkout: {branch: "main"},
+      parameters: {"release-sha": $sha}
+    },
+    references: {pipeline: {id: $id}}
+  }
+}' | curl --globoff --fail-with-body --silent --show-error \
+  --request POST "$api_url" \
+  --header "Authorization: Bearer ${CIRCLE_TOKEN:?Set CIRCLE_TOKEN}" \
+  --header 'Content-Type: application/json' \
+  --data-binary @-
+```
+
+Wait for `restage-wf` to succeed. It rebuilds every image in that commit's `build-images.sh` and pushes the complete set to `ccitest`. Then rerun the original workflow for the latest release commit to publish the staged images.
 
 ### Incorporating Changes
 
@@ -224,7 +260,7 @@ If you *really* want to publish changes from a parent image into the OpenJDK ima
 This will create a new Dockerfile and once published, a new image.
 
 **OpenJDK specific changes** - Editing the `Dockerfile.template` file in this repo is how to modify the OpenJDK image specifically.
-Don't forget that to see any of these changes locally, the `gen-dockerfiles.sh` script will need to be run again (see above).
+To see these changes locally, run `bash ./temurin-release.sh generate` again with the versions you want to build.
 
 
 ## Contributing
