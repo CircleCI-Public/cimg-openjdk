@@ -115,18 +115,22 @@ class ReleasePublicationTest(unittest.TestCase):
         self.run_command("git", "commit", "-qm", f"Publish {VERSION} [release]")
         self.tree = self.run_command("git", "rev-parse", "HEAD:25.0").stdout.strip()
 
-    def write_release_files(self, version, pin, variants):
+    def write_release_files(self, version, pin, variants, *, append=False):
+        build_script = self.repo / "build-images.sh"
         commands = ["#!/usr/bin/env bash", "set -eo pipefail"]
+        if append:
+            commands = build_script.read_text().splitlines()
+        series = ".".join(version.split(".")[:2])
         for suffix in variants:
-            directory = self.repo / "25.0" / suffix.lstrip("-")
+            directory = self.repo / series / suffix.lstrip("-")
             directory.mkdir(parents=True, exist_ok=True)
             parent = "-node" if suffix == "-browsers" else ""
             dockerfile = directory / "Dockerfile"
             dockerfile.write_text(f"FROM cimg/openjdk:{version}{parent}\n" if suffix else
                                   f"FROM cimg/base:current\nENV JAVA_VERSION={version}\nARG TEMURIN_RELEASE_TAG={pin}\n")
             commands.append(f"docker buildx build --platform=linux/amd64 --file {dockerfile.relative_to(self.repo)}"
-                            f" -t cimg/openjdk:{version}{suffix} -t cimg/openjdk:25.0{suffix} --push .")
-        (self.repo / "build-images.sh").write_text("\n".join(commands) + "\n")
+                            f" -t cimg/openjdk:{version}{suffix} -t cimg/openjdk:{series}{suffix} --push .")
+        build_script.write_text("\n".join(commands) + "\n")
 
     def merge_release(self, version, pin="", variants=("",)):
         self.write_release_files(version, pin, variants)
@@ -148,10 +152,13 @@ class ReleasePublicationTest(unittest.TestCase):
 
     def stage(self):
         self.run_command("bash", ".circleci/prepare-release.sh")
+        self.build_staged_images()
+        self.run_command("git", "restore", "25.0", "build-images.sh")
+
+    def build_staged_images(self):
         # The cimg orb performs this namespace replacement on Test builds.
         instructions = (self.repo / "build-images.sh").read_text().replace("cimg", "ccitest")
         self.run_command("bash", "-c", instructions)
-        self.run_command("git", "restore", "25.0", "build-images.sh")
 
     def deploy(self, check=True):
         return self.run_command("bash", ".circleci/publish-release.sh", check=check)
@@ -172,6 +179,72 @@ class ReleasePublicationTest(unittest.TestCase):
         self.run_command("git", "commit", "--allow-empty", "-qm", "Update docs", "-m", "Mention [release]")
         self.deploy()
         self.assertFalse(self.read_state().get("copies"))
+
+    def test_restage_rebuilds_complete_set_at_requested_commit(self):
+        self.merge_release("25.0.5.1", "jdk-25.0.5.1+2", VARIANTS)
+        self.write_release_files("21.0.14", "jdk-21.0.14+3", VARIANTS, append=True)
+        scripts = (".circleci/prepare-release.sh", ".circleci/release-builds.sh", ".circleci/restage-release.sh")
+        self.run_command("git", "rm", *scripts)
+        self.run_command("git", "add", "21.0", "build-images.sh")
+        self.run_command("git", "commit", "-qm", "Publish 21.0.14 and 25.0.5.1 [release]")
+        release = self.run_command("git", "rev-parse", "HEAD").stdout.strip()
+        trees = [self.run_command("git", "rev-parse", f"HEAD:{series}").stdout.strip()
+                 for series in ("25.0", "21.0")]
+        self.run_command("git", "restore", "--source=HEAD^", "--staged", "--worktree", *scripts)
+        self.merge_release("25.0.6", "jdk-25.0.6+4", VARIANTS)
+
+        self.run_command("bash", ".circleci/restage-release.sh", release)
+        self.assertEqual(self.run_command("git", "rev-parse", "HEAD").stdout.strip(), release)
+        self.build_staged_images()
+
+        state = self.read_state()
+        self.assertEqual(state["builds"], [f"ccitest/openjdk:stage-{tree}{variant}"
+                                          for tree in trees for variant in VARIANTS])
+        for tree, version in zip(trees, ("25.0.5.1+2", "21.0.14+3")):
+            digests = [state["tags"][f"ccitest/openjdk:stage-{tree}{variant}"] for variant in VARIANTS]
+            base, node, browsers = [state["images"][digest] for digest in digests]
+            self.assertEqual([image[VERSION_LABEL] for image in (base, node, browsers)], [version] * 3)
+            self.assertEqual(node[PARENT_LABEL], digests[0])
+            self.assertEqual(browsers[PARENT_LABEL], digests[1])
+
+    def test_restage_requires_release_subject(self):
+        self.run_command("git", "commit", "--allow-empty", "-qm", "Update docs", "-m", "Mention [release]")
+        sha = self.run_command("git", "rev-parse", "HEAD").stdout.strip()
+        result = self.run_command("bash", ".circleci/restage-release.sh", sha, check=False)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("missing [release] in its subject", result.stderr)
+        self.assertFalse(self.read_state()["builds"])
+
+    def test_restage_rejects_release_outside_main_history(self):
+        self.run_command("git", "checkout", "-qb", "unmerged")
+        self.merge_release("25.0.6", "jdk-25.0.6+4", VARIANTS)
+        sha = self.run_command("git", "rev-parse", "HEAD").stdout.strip()
+        self.run_command("git", "checkout", "-q", "main")
+        result = self.run_command("bash", ".circleci/restage-release.sh", sha, check=False)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("commit on the checked-out main branch", result.stderr)
+        self.assertFalse(self.read_state()["builds"])
+
+    def test_restage_rejects_release_using_legacy_deploy(self):
+        self.run_command("git", "rm", ".circleci/publish-release.sh")
+        self.run_command("git", "commit", "-qm", "Publish with the legacy workflow [release]")
+        sha = self.run_command("git", "rev-parse", "HEAD").stdout.strip()
+        result = self.run_command("bash", ".circleci/restage-release.sh", sha, check=False)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("uses the legacy Deploy workflow", result.stderr)
+        self.assertNotIn("stage-", (self.repo / "build-images.sh").read_text())
+
+    def test_restage_rejects_manifest_without_staging_builds(self):
+        (self.repo / "build-images.sh").write_text(
+            "#!/usr/bin/env bash\n# stage- is just a comment\n"
+            "docker build --file 25.0/Dockerfile -t cimg/openjdk:25.0 .\n"
+        )
+        self.run_command("git", "add", "build-images.sh")
+        self.run_command("git", "commit", "-qm", "Publish without Buildx [release]")
+        sha = self.run_command("git", "rev-parse", "HEAD").stdout.strip()
+        result = self.run_command("bash", ".circleci/restage-release.sh", sha, check=False)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("produced no staging image builds", result.stderr)
 
     def test_only_checked_out_release_is_published_and_patch_aliases_are_added(self):
         self.stage()

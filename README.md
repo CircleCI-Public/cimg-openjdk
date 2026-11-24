@@ -201,6 +201,41 @@ All that would need to be done after that is:
 The main branch Deploy job publishes the checked-out release commit using the images staged by Test.
 A tag already pointing to a newer JDK version or known Temurin build stays where it is. Its older variant aliases are also left in place.
 
+### Recovering a release
+
+Rerun Deploy only for the latest `[release]` commit on `main`. A previous release with the same JDK version and Temurin build can replace an image published from a later commit.
+
+If a staging image is missing or its parent digest does not match, rebuild the complete staging set for that release first. The recovery workflow supports releases whose original Deploy uses `.circleci/publish-release.sh` to read `stage-<tree>` tags.
+
+Set `CIRCLE_TOKEN` to a CircleCI personal API token, and use the pipeline definition ID and full SHA of the merged `[release]` commit. GitHub OAuth uses a `gh/` or `github/` project slug and requires the CircleCI project ID in `filter[project_id]`. GitHub App uses a `circleci/` project slug and can leave `project_id` empty. [Find your CircleCI IDs](https://circleci.com/docs/guides/toolkit/how-to-find-ids/) · [CircleCI API v3 trigger guide](https://circleci.com/docs/guides/toolkit/api-v1-migration-guide/#replace-trigger-calls-using-api-v3)
+
+```bash
+definition_id='<pipeline-definition-id>'
+release_sha='<merged-release-commit-sha>'
+project_id='' # Set to the CircleCI project ID for GitHub OAuth.
+api_url='https://circleci.com/api/v3/runs'
+if [[ -n "$project_id" ]]; then
+  api_url+="?filter[project_id]=$project_id"
+fi
+
+jq -n --arg id "$definition_id" --arg sha "$release_sha" '{
+  data: {
+    attributes: {
+      config: {branch: "main"},
+      checkout: {branch: "main"},
+      parameters: {"release-sha": $sha}
+    },
+    references: {pipeline: {id: $id}}
+  }
+}' | curl --globoff --fail-with-body --silent --show-error \
+  --request POST "$api_url" \
+  --header "Authorization: Bearer ${CIRCLE_TOKEN:?Set CIRCLE_TOKEN}" \
+  --header 'Content-Type: application/json' \
+  --data-binary @-
+```
+
+Wait for `restage-wf` to succeed. It rebuilds every image in that commit's `build-images.sh` and pushes the complete set to `ccitest`. Then rerun the original workflow for the latest release commit to publish the staged images.
+
 ### Incorporating Changes
 
 How changes are incorporated into this image depends on where they come from.

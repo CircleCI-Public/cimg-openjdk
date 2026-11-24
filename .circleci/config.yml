@@ -8,6 +8,9 @@ parameters:
   cron:
     type: boolean
     default: false
+  release-sha:
+    type: string
+    default: ""
 
 jobs:
   test-template:
@@ -57,6 +60,23 @@ jobs:
       - cimg/build-images:
           docker-namespace: ccitest
           docker-repository: openjdk
+  restage-release:
+    executor:
+      name: cimg/default
+      resource_class: 2xlarge+.gen2
+    steps:
+      - checkout:
+          method: full
+      - run:
+          name: Prepare all staging builds for the requested release
+          environment:
+            RELEASE_SHA: << pipeline.parameters.release-sha >>
+          command: bash .circleci/restage-release.sh "$RELEASE_SHA"
+      - setup_remote_docker
+      - cimg/build-images:
+          publish-branch: never-main
+          docker-namespace: ccitest
+          docker-repository: openjdk
   deploy:
     executor:
       name: cimg/default
@@ -76,7 +96,10 @@ jobs:
 
 workflows:
   automated-wf:
-    when: << pipeline.parameters.cron >>
+    when:
+      and:
+        - << pipeline.parameters.cron >>
+        - equal: ["", << pipeline.parameters.release-sha >>]
     jobs:
       - cimg/update:
           update-script: openJDKFeed.sh
@@ -86,7 +109,9 @@ workflows:
             - cpe-image-bot-github-creds
   main-wf:
     when:
-      not: << pipeline.parameters.cron >>
+      and:
+        - not: << pipeline.parameters.cron >>
+        - equal: ["", << pipeline.parameters.release-sha >>]
     jobs:
       - test-template:
           context:
@@ -129,3 +154,15 @@ workflows:
                 event: fail
                 mentions: "@images"
                 template: basic_fail_1
+  restage-wf:
+    when:
+      not:
+        equal: ["", << pipeline.parameters.release-sha >>]
+    jobs:
+      - restage-release:
+          context:
+            - cimg-docker-image-building
+          filters:
+            branches:
+              only:
+                - main
