@@ -134,27 +134,29 @@ getOpenJDKVersion() {
   openjdk_vers=(11 16 17 18 19 20 21 22 23 24 25 26 27)
 
   for jdkver in "${openjdk_vers[@]}"; do
-    JAVA_VERSIONS=$(curl -s "https://api.github.com/repos/adoptium/temurin${jdkver}-binaries/releases" | jq -r ".[] | select(.tag_name | test(\"jdk-\")) | .tag_name")
+    JAVA_RELEASES=$(curl -fsSL "https://api.github.com/repos/adoptium/temurin${jdkver}-binaries/releases" |
+      jq -r '
+        def has_jdk($arch):
+          any(.assets[]; .state == "uploaded" and
+            (.name | test("^OpenJDK[0-9]+U-jdk_" + $arch + "_linux_hotspot_.+\\.tar\\.gz$")));
+        [.[] | select(.draft == false and .prerelease == false)
+          | select(.tag_name | test("^jdk-[0-9]+(\\.[0-9]+)*\\+[0-9]+(\\.[0-9]+)*$"))
+          | select(has_jdk("x64") and has_jdk("aarch64"))
+          | .tag_name]
+        | sort_by(ltrimstr("jdk-") | split("+") | map(split(".") | map(tonumber)))
+        | reverse[]')
 
-    for version in $JAVA_VERSIONS; do
-      if [[ $version == *"-beta"* ]]; then
-        echo "Skipping beta version $version"
-        continue
-      fi
-      if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+\.[0-9] ]]; then
-        continue
-      fi
-      JAVA_VERSION=$(echo "$version" | cut -d '-' -f 2 | cut -d '+' -f 1)
+    for release_tag in $JAVA_RELEASES; do
+      JAVA_VERSION=${release_tag#jdk-}
+      JAVA_VERSION=${JAVA_VERSION%%+*}
       JAVA_MAJOR=$(echo "$JAVA_VERSION" | cut -d '.' -f 1)
       if [[ "$JAVA_VERSION" = "$JAVA_MAJOR" ]]; then
-        # If the full version matches the major, provide a fake .0 minor version to the full version.
-        # Otherwise, this causes downstream weirdness in the rest of the pile of scripts.
         JAVA_VERSION="$JAVA_MAJOR.0"
       fi
       generateSearchTerms "JAVA_VERSION" "$JAVA_MAJOR.0/Dockerfile"
       versionEqual "$JAVA_VERSION" "$SEARCH_TERM"
       if [[ $(eval echo $?) -eq 0 ]]; then
-        vers+=("$JAVA_VERSION")
+        vers+=("$JAVA_VERSION#$release_tag")
         break
       fi
     done
@@ -166,7 +168,7 @@ getOpenJDKVersion
 if [ -n "${vers[*]}" ]; then
   echo "Included version updates: ${vers[*]}"
   echo "Running release script"
-  ./shared/release.sh "${vers[@]}"
+  bash ./temurin-release.sh release "${vers[@]}"
 else
   echo "No new version updates"
   exit 0

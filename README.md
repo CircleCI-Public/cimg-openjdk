@@ -151,22 +151,21 @@ git clone --recurse-submodules git@github.com:CircleCI-Public/cimg-openjdk.git
 
 ### Generating Dockerfiles
 
-Dockerfiles can be generated for a specific OpenJDK version using the `gen-dockerfiles.sh` script.
-For example, to generate the Dockerfile for OpenJDK v11.0.5, you would run the following from the root of the repo:
+Dockerfiles can be generated for a specific OpenJDK version using the `temurin-release.sh generate` command.
+For example, to generate the Dockerfile for Temurin `11.0.33.1+1` with its release tag pinned, run the following from the root of the repo:
 
 ```bash
-./shared/gen-dockerfiles.sh 11.0.5#https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.5%2B10/OpenJDK11U-jdk_x64_linux_hotspot_11.0.5_10.tar.gz
+bash ./temurin-release.sh generate 11.0.33.1#jdk-11.0.33.1+1
 ```
 
-The generated Dockerfile will be located at `./11.0/Dockefile`.
-Unlike most of the CircleCI Convenience Images, the OpenJDK image requires not only the version number to be passed but the Adoptium download URL as well.
-This is due to inconsistencies with the extra build number they add to their version numbers, which doesn't fit the SemVer scheme.
+The generated Dockerfile will be located at `./11.0/Dockerfile`.
+For JDK 11 and later, an explicit release tag must match the requested JDK version. If omitted, the Dockerfile looks up a stable Temurin build for that version. JDK 8 uses the version alone.
 To build this image locally and try it out, you can run the following:
 
 ```bash
 cd 11.0
-docker build -t test/openjdk:11.0.5 .
-docker run -it test/openjdk:11.0.5 bash
+docker build -t test/openjdk:11.0.33.1 .
+docker run -it test/openjdk:11.0.33.1 bash
 ```
 
 ### Building the Dockerfiles
@@ -184,10 +183,10 @@ When releasing proper images for CircleCI, this script is run from a CircleCI pi
 
 The individual scripts (above) can be used to create the correct files for an image, and then added to a new git branch, committed, etc.
 A release script is included to make this process easier.
-To make a proper release for this image, let's use the fake OpenJDK version of OpenJDK v9.9.9 and a fake release URL, you would run the following from the repo root:
+To prepare a release with a pinned Temurin build, run the following from the repo root:
 
 ```bash
-./shared/release.sh 9.9.9#https://github.com/AdoptOpenJDK/openjdk9-binaries/releases/download/jdk-9.9.9%2B10/OpenJDK9U-jdk_x64_linux_hotspot_9.9.9_10.tar.gz
+bash ./temurin-release.sh release 11.0.33.1#jdk-11.0.33.1+1
 ```
 
 This will automatically create a new Git branch, generate the Dockerfile(s), stage the changes, commit them, and push them to GitHub.
@@ -226,7 +225,7 @@ If you *really* want to publish changes from a parent image into the OpenJDK ima
 This will create a new Dockerfile and once published, a new image.
 
 **OpenJDK specific changes** - Editing the `Dockerfile.template` file in this repo is how to modify the OpenJDK image specifically.
-Don't forget that to see any of these changes locally, the `gen-dockerfiles.sh` script will need to be run again (see above).
+To see these changes locally, run `bash ./temurin-release.sh generate` again with the versions you want to build.
 
 
 ## Contributing
