@@ -10,6 +10,33 @@ parameters:
     default: false
 
 jobs:
+  test-template:
+    executor: cimg/default
+    steps:
+      - checkout
+      - run:
+          name: Check for template build changes
+          command: |
+            git fetch --no-tags origin refs/heads/main
+            if git diff --quiet FETCH_HEAD HEAD -- Dockerfile.template temurin-release.sh manifest shared .gitmodules .circleci/config.yml; then
+              circleci step halt
+            fi
+      - run:
+          name: Generate a Dockerfile with a pinned Temurin patch release
+          command: |
+            git -c submodule.shared.url=https://github.com/CircleCI-Public/cimg-shared.git submodule update --init shared
+            bash ./temurin-release.sh generate '25.0.5.1#jdk-25.0.5.1+2'
+      - setup_remote_docker
+      - run:
+          name: Log in to Docker Hub
+          command: |
+            printf '%s\n' "${DOCKER_TOKEN:?Missing Docker Hub token}" |
+              docker login --username "${DOCKER_USER:?Missing Docker Hub username}" --password-stdin
+      - run:
+          name: Build and run the generated OpenJDK image
+          command: |
+            docker buildx build --load --platform linux/amd64 --tag cimg-openjdk-template-check:ci --file 25.0/Dockerfile .
+            docker run --rm --network=none cimg-openjdk-template-check:ci java -version 2>&1 | grep -F 'Temurin-25.0.5.1+2'
   test:
     executor:
       name: cimg/default
@@ -61,6 +88,13 @@ workflows:
     when:
       not: << pipeline.parameters.cron >>
     jobs:
+      - test-template:
+          context:
+            - cimg-docker-image-building
+          filters:
+            branches:
+              ignore:
+                - main
       - test:
           name: "Test"
           filters:
